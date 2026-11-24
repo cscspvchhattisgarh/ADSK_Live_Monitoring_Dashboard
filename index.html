@@ -8,15 +8,29 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <style id="dynamicPageStyle">
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+  </style>
   <style>
     .hindi-doc { font-family: 'Noto Sans Devanagari', sans-serif; }
 
-    /* Clean Single-Page A4 Print Isolation */
+    /* Snapshot Report Table Styling */
+    .snap-table th, .snap-table td {
+      border: 1px solid #334155;
+      padding: 4px 6px;
+      white-space: nowrap;
+    }
+    .snap-table thead th {
+      background-color: #f8fafc;
+      color: #0f172a;
+      font-weight: 700;
+      text-align: center;
+    }
+
     @media print {
-      @page {
-        size: A4 portrait;
-        margin: 10mm 12mm;
-      }
       html, body {
         background: #ffffff !important;
         margin: 0 !important;
@@ -30,15 +44,32 @@
         display: block !important;
         width: 100% !important;
         margin: 0 !important;
-        padding: 0 !important;
+        box-sizing: border-box !important;
         background: #ffffff !important;
         color: #000000 !important;
+      }
+      /* Portrait Notice Print */
+      #dedicatedPrintWrapper.notice-print {
+        padding: 12mm 15mm !important;
         font-family: 'Noto Sans Devanagari', sans-serif !important;
         font-size: 13px !important;
         line-height: 1.55 !important;
       }
-      #dedicatedPrintWrapper .no-print {
-        display: none !important;
+      /* Landscape Report Print */
+      #dedicatedPrintWrapper.landscape-report-print {
+        padding: 6mm 8mm !important;
+        font-family: Arial, sans-serif !important;
+      }
+      #dedicatedPrintWrapper.landscape-report-print table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 9.5px !important;
+      }
+      #dedicatedPrintWrapper.landscape-report-print th,
+      #dedicatedPrintWrapper.landscape-report-print td {
+        border: 1px solid #000000 !important;
+        padding: 2.5px 4px !important;
+        color: #000000 !important;
       }
     }
   </style>
@@ -75,20 +106,20 @@
         </button>
 
         <button onclick="exportFilteredExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg shadow transition">
-          Export Excel
+          Export Full Excel
         </button>
       </div>
     </div>
 
     <!-- Navigation Tabs -->
-    <div class="max-w-7xl mx-auto px-4 flex gap-1 border-t border-white/10 pt-2">
-      <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg bg-slate-50 text-indigo-900">
-        1. Executive Trend Analysis
+    <div class="max-w-7xl mx-auto px-4 flex gap-1 border-t border-white/10 pt-2 overflow-x-auto">
+      <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg bg-slate-50 text-indigo-900 whitespace-nowrap">
+        1. Executive Report, Trend & Top VLEs
       </button>
-      <button onclick="switchTab('geo')" id="tab-geo" class="tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg text-blue-100 hover:bg-white/10">
+      <button onclick="switchTab('geo')" id="tab-geo" class="tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg text-blue-100 hover:bg-white/10 whitespace-nowrap">
         2. District & Block Comparison
       </button>
-      <button onclick="switchTab('sarpanch')" id="tab-sarpanch" class="tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg text-blue-100 hover:bg-white/10 flex items-center gap-1.5">
+      <button onclick="switchTab('sarpanch')" id="tab-sarpanch" class="tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg text-blue-100 hover:bg-white/10 flex items-center gap-1.5 whitespace-nowrap">
         3. Sarpanch Monitoring, Notice PDF & Pawati Upload
         <span id="inactiveTabCount" class="bg-rose-500 text-white text-[11px] px-1.5 py-0.2 rounded-full">0</span>
       </button>
@@ -173,17 +204,163 @@
       </div>
     </div>
 
-    <!-- TAB 1: EXECUTIVE TREND ANALYSIS -->
+    <!-- TAB 1: SNAPSHOT REPORT (ABOVE TREND CHART), TREND CHART & TOP VLE LIST -->
     <div id="view-overview" class="space-y-6">
+
+      <!-- 4) SNAPSHOT STYLE MULTI-HEADER REPORT (ABOVE TREND CHART) -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+          <div>
+            <h3 class="text-base font-bold text-slate-900">ADSK REPORT - PHASE 1 TO 5 (Consolidated Summary Table)</h3>
+            <p class="text-xs text-slate-500">Landscape PDF Print aur Auto-Arranged Print-Ready Excel Download ke saath</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="printSnapshotLandscapePDF()" class="bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold px-3.5 py-2 rounded-lg shadow flex items-center gap-1.5 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              Print / Download Landscape PDF
+            </button>
+            <button onclick="exportSnapshotFormattedExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg shadow flex items-center gap-1.5 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download Auto-Arranged Excel
+            </button>
+          </div>
+        </div>
+
+        <div id="snapshotTableContainer" class="overflow-x-auto">
+          <table class="snap-table w-full border-collapse text-[11px]">
+            <thead>
+              <tr>
+                <th colspan="6" rowspan="2" class="text-sm font-extrabold tracking-wide bg-slate-100">ADSK REPORT - PHASE 1 TO 5</th>
+                <th colspan="2" rowspan="2" class="text-xs font-extrabold bg-slate-100">TYPE OF SERVICE</th>
+                <th colspan="6" id="snapCumBannerHeader" class="text-xs font-extrabold bg-blue-50 text-blue-950">CUMMULATIVE REPORT 24 APR'25 ONWARDS</th>
+              </tr>
+              <tr>
+                <th colspan="2" class="bg-emerald-50 text-emerald-950">VLE ACTIVE/INACTIVE</th>
+                <th colspan="2" class="bg-indigo-50 text-indigo-950">TOTAL TRANSACTION</th>
+                <th colspan="2" class="bg-amber-50 text-amber-950">VLE/MONTH TRANSACTION</th>
+              </tr>
+              <tr>
+                <th>SR.NO</th>
+                <th id="snapAreaColHeader">DISTRICT NAME</th>
+                <th>NO. OF GP</th>
+                <th>NO. OF VLE</th>
+                <th>NO. OF MOU COMPLETED</th>
+                <th>NO. OF MOU PENDING</th>
+                <th>KIOSK BC</th>
+                <th>DIGIPAY</th>
+                <th>ACTIVE VLE</th>
+                <th>INACTIVE VLE</th>
+                <th>TRANSACTION</th>
+                <th>AMOUNT</th>
+                <th>TRANSACTION</th>
+                <th>AMOUNT</th>
+              </tr>
+            </thead>
+            <tbody id="snapshotTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Month-on-Month Trend Chart -->
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
         <div class="mb-3">
           <h3 class="text-base font-bold text-slate-800">Month-on-Month Transaction & Active VLE Trend</h3>
           <p class="text-xs text-slate-500">Automatically updates when new monthly columns are added</p>
         </div>
-        <div class="h-80">
+        <div class="h-72">
           <canvas id="trendChart"></canvas>
         </div>
       </div>
+
+      <!-- 1) TOP TRANSACTING VLE LIST (DISTRICT-WISE & BLOCK-WISE | CUMULATIVE & MONTHLY) -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 pb-4 border-b border-slate-200">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded uppercase">Top Performers</span>
+              <h3 class="text-base font-bold text-slate-900">Top Transacting VLE List — District-Wise & Block-Wise</h3>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">Apni requirement ke anusaar District-wise ya Block-wise (Cumulative ya Monthly) Top VLE list nikalein aur Excel download karein</p>
+          </div>
+
+          <button onclick="downloadTopVlesExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow flex items-center gap-1.5 transition self-start lg:self-auto">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Download Top VLE List (Excel)
+          </button>
+        </div>
+
+        <!-- Filter & Requirement Controls -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 my-4 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">1. Grouping Level</label>
+            <select id="topVleLevel" onchange="renderTopVleSection()" class="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-white text-indigo-900">
+              <option value="DISTRICT">District-Wise (Har Zile ke Top VLEs)</option>
+              <option value="BLOCK">Block-Wise (Har Block ke Top VLEs)</option>
+              <option value="OVERALL">Overall State / Filtered Top VLEs</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">2. Period Basis</label>
+            <select id="topVlePeriod" onchange="renderTopVleSection()" class="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-white text-blue-900">
+              <option value="CUMULATIVE">Cumulative Basis (All Months Total)</option>
+              <option value="ALL_MONTHS">Monthly Basis (All Months — Month-by-Month)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">3. Top VLE Count</label>
+            <select id="topVleCount" onchange="renderTopVleSection()" class="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-white text-slate-800">
+              <option value="1">Top 1 VLE per District/Block</option>
+              <option value="3" selected>Top 3 VLEs per District/Block</option>
+              <option value="5">Top 5 VLEs per District/Block</option>
+              <option value="10">Top 10 VLEs per District/Block</option>
+              <option value="25">Top 25 VLEs</option>
+              <option value="50">Top 50 VLEs</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">4. Ranking Criteria</label>
+            <select id="topVleMetric" onchange="renderTopVleSection()" class="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-white text-emerald-900">
+              <option value="TX">Highest Transactions Count</option>
+              <option value="AMT">Highest Transaction Amount (₹)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center mb-2 text-xs text-slate-600">
+          <span id="topVleSummaryLabel" class="font-semibold">Showing Top VLEs</span>
+          <span>(Previewing top 200 rows; Excel downloads 100% full list)</span>
+        </div>
+
+        <div class="overflow-x-auto max-h-96 border border-slate-200 rounded-lg">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="sticky top-0 bg-indigo-900 text-white uppercase">
+              <tr>
+                <th class="p-2.5">Rank</th>
+                <th class="p-2.5">Period</th>
+                <th class="p-2.5">District</th>
+                <th class="p-2.5">Block</th>
+                <th class="p-2.5">Gram Panchayat (Code)</th>
+                <th class="p-2.5">VLE Name</th>
+                <th class="p-2.5">CSC ID</th>
+                <th class="p-2.5">Service Type</th>
+                <th class="p-2.5 text-right">Transactions</th>
+                <th class="p-2.5 text-right">Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="topVleTableBody" class="divide-y divide-slate-200"></tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
 
     <!-- TAB 2: DISTRICT & BLOCK WISE ANALYSIS -->
@@ -292,7 +469,7 @@
     <div class="bg-white rounded-2xl max-w-4xl w-full shadow-2xl border border-slate-300 my-4 overflow-hidden">
       <div class="bg-slate-800 text-white px-5 py-3 flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-3">
-          <span class="text-sm font-bold">ऑफिशियल ग्राम पंचायत नोटिस प्रीव्यू (Single Page A4)</span>
+          <span class="text-sm font-bold">ऑफिशियल ग्राम पंचायत नोटिस प्रीव्यू (Clean Single Page A4)</span>
           <label class="text-xs flex items-center gap-1.5 bg-slate-700 px-2.5 py-1 rounded">
             नोटिस दिनांक:
             <input type="date" id="customNoticeDate" onchange="refreshNoticeDates()" class="bg-slate-900 text-white text-xs px-1.5 py-0.5 rounded border border-slate-600">
@@ -421,13 +598,13 @@
     </div>
   </div>
 
-  <!-- Dedicated Single-Page Print Container (Populated dynamically on Print) -->
+  <!-- Dedicated Clean Print Wrapper -->
   <div id="dedicatedPrintWrapper" class="hidden"></div>
 
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQViqSWtkH7N5TAw4B4ZKJzVrOlpmyAj99X_nLU06lwqD6eJtN6Uv5ZqL22o__7VN1/exec";
-    const LOCAL_CACHE_KEY = 'ADSK_PORTAL_CACHE_V7';
-    const AUTO_SYNC_MS = 5 * 60 * 1000; // 5 Minutes Silent Background Sync
+    const LOCAL_CACHE_KEY = 'ADSK_PORTAL_CACHE_V8';
+    const AUTO_SYNC_MS = 5 * 60 * 1000;
 
     let rawData = [];
     let filteredData = [];
@@ -479,7 +656,6 @@
 
         const cumTx = Number(r[13]) || 0;
         const cumAmt = Number(r[14]) || 0;
-        // Cumulative Active check: either cumulative tx > 0 or any month active
         const isCumActive = cumTx > 0 || monthlyArr.some(m => m.status === 'ACTIVE');
 
         return {
@@ -542,7 +718,6 @@
     };
 
     function formatMonthLabel(rawM) {
-      // Converts SEP'26 -> Sep 2026
       const m = String(rawM || '').trim();
       const match = m.match(/^([A-Za-z]+)'?(\d{2})$/);
       if (match) {
@@ -578,6 +753,15 @@
       [...availableMonths].reverse().forEach(m => {
         monthSel.innerHTML += `<option value="${m}">${m}</option>`;
       });
+
+      const topPeriodSel = document.getElementById('topVlePeriod');
+      topPeriodSel.innerHTML = `
+        <option value="CUMULATIVE">Cumulative Basis (All Months Total)</option>
+        <option value="ALL_MONTHS">Monthly Basis (All Months — Month-by-Month)</option>
+      `;
+      [...availableMonths].reverse().forEach(m => {
+        topPeriodSel.innerHTML += `<option value="${m}">Specific Month: ${m}</option>`;
+      });
     }
 
     function refreshDropdownOptionsPreservingSelection() {
@@ -586,6 +770,7 @@
       const prevMonth = document.getElementById('filterMonth').value;
       const prevPhase = document.getElementById('filterPhase').value;
       const prevMou = document.getElementById('filterMou').value;
+      const prevTopPeriod = document.getElementById('topVlePeriod').value;
 
       populateDropdowns();
 
@@ -599,6 +784,7 @@
       document.getElementById('filterMonth').value = prevMonth;
       document.getElementById('filterPhase').value = prevPhase;
       document.getElementById('filterMou').value = prevMou;
+      document.getElementById('topVlePeriod').value = prevTopPeriod || 'CUMULATIVE';
     }
 
     function fillSelect(id, items, defaultLabel) {
@@ -629,11 +815,7 @@
 
     function getMetricsForRow(row, selectedMonth) {
       if (selectedMonth === 'CUMULATIVE') {
-        return {
-          tx: row.cumTx,
-          amt: row.cumAmt,
-          isActive: row.isCumActive
-        };
+        return { tx: row.cumTx, amt: row.cumAmt, isActive: row.isCumActive };
       }
       const mObj = row.monthly.find(m => m.month === selectedMonth);
       return mObj ? { tx: mObj.tx, amt: mObj.amt, isActive: mObj.status === 'ACTIVE' } : { tx: 0, amt: 0, isActive: false };
@@ -655,7 +837,9 @@
       });
 
       updateKPIs(selectedMonth);
+      renderSnapshotReport();
       renderTrendChart();
+      renderTopVleSection();
       renderGeoTable();
       renderSarpanchTable();
     }
@@ -696,6 +880,315 @@
       document.getElementById('trackPawatiUploaded').textContent = pawatiCnt.toLocaleString('en-IN');
     }
 
+    // =========================================================================
+    // 4) SNAPSHOT REPORT (ADSK REPORT - PHASE 1 TO 5) + LANDSCAPE PDF + EXCEL
+    // =========================================================================
+    function buildSnapshotRows() {
+      const selectedDist = document.getElementById('filterDistrict').value;
+      const isBlockMode = selectedDist !== 'ALL';
+      const monthCount = availableMonths.length || 1;
+
+      const map = {};
+      filteredData.forEach(r => {
+        const key = isBlockMode ? r.block : r.district;
+        if (!key) return;
+        if (!map[key]) {
+          map[key] = {
+            name: key,
+            gpSet: new Set(),
+            vleCount: 0,
+            mouCompleted: 0,
+            mouPending: 0,
+            kioskBc: 0,
+            digipay: 0,
+            activeVle: 0,
+            inactiveVle: 0,
+            tx: 0,
+            amt: 0
+          };
+        }
+        const g = map[key];
+        g.gpSet.add(r.gpCode || r.gp);
+        g.vleCount++;
+        if (isMouDone(r)) g.mouCompleted++;
+        else g.mouPending++;
+
+        if (r.serviceType.includes('KIOSK') || r.serviceType.includes('BC')) g.kioskBc++;
+        else g.digipay++;
+
+        if (r.isCumActive) g.activeVle++;
+        else g.inactiveVle++;
+
+        g.tx += r.cumTx;
+        g.amt += r.cumAmt;
+      });
+
+      const list = Object.values(map)
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(g => {
+          const gpCount = g.gpSet.size || g.vleCount;
+          const denom = (g.vleCount * monthCount) || 1;
+          return {
+            name: g.name,
+            gpCount,
+            vleCount: g.vleCount,
+            mouCompleted: g.mouCompleted,
+            mouPending: g.mouPending,
+            kioskBc: g.kioskBc,
+            digipay: g.digipay,
+            activeVle: g.activeVle,
+            inactiveVle: g.inactiveVle,
+            tx: Math.round(g.tx),
+            amt: Math.round(g.amt),
+            vleMonthTx: Math.round(g.tx / denom),
+            vleMonthAmt: Math.round(g.amt / denom)
+          };
+        });
+
+      const totals = list.reduce((acc, row) => {
+        acc.gpCount += row.gpCount;
+        acc.vleCount += row.vleCount;
+        acc.mouCompleted += row.mouCompleted;
+        acc.mouPending += row.mouPending;
+        acc.kioskBc += row.kioskBc;
+        acc.digipay += row.digipay;
+        acc.activeVle += row.activeVle;
+        acc.inactiveVle += row.inactiveVle;
+        acc.tx += row.tx;
+        acc.amt += row.amt;
+        return acc;
+      }, { gpCount: 0, vleCount: 0, mouCompleted: 0, mouPending: 0, kioskBc: 0, digipay: 0, activeVle: 0, inactiveVle: 0, tx: 0, amt: 0 });
+
+      const totDenom = (totals.vleCount * monthCount) || 1;
+      totals.vleMonthTx = Math.round(totals.tx / totDenom);
+      totals.vleMonthAmt = Math.round(totals.amt / totDenom);
+
+      return { isBlockMode, list, totals };
+    }
+
+    function renderSnapshotReport() {
+      const { isBlockMode, list, totals } = buildSnapshotRows();
+      document.getElementById('snapAreaColHeader').textContent = isBlockMode ? 'BLOCK NAME' : 'DISTRICT NAME';
+
+      const makeTotalRow = () => `
+        <tr class="bg-slate-200 font-extrabold text-slate-950">
+          <td class="text-center">TOTAL</td>
+          <td class="text-center">${list.length}</td>
+          <td class="text-center">${totals.gpCount}</td>
+          <td class="text-center">${totals.vleCount}</td>
+          <td class="text-center">${totals.mouCompleted}</td>
+          <td class="text-center">${totals.mouPending}</td>
+          <td class="text-center">${totals.kioskBc}</td>
+          <td class="text-center">${totals.digipay}</td>
+          <td class="text-center">${totals.activeVle}</td>
+          <td class="text-center">${totals.inactiveVle}</td>
+          <td class="text-center">${totals.tx}</td>
+          <td class="text-center">${totals.amt}</td>
+          <td class="text-center">${totals.vleMonthTx}</td>
+          <td class="text-center">${totals.vleMonthAmt}</td>
+        </tr>`;
+
+      const bodyRows = list.map((r, i) => `
+        <tr class="hover:bg-blue-50/40">
+          <td class="text-center font-semibold">${i + 1}</td>
+          <td class="font-bold text-slate-900">${r.name}</td>
+          <td class="text-center">${r.gpCount}</td>
+          <td class="text-center">${r.vleCount}</td>
+          <td class="text-center">${r.mouCompleted}</td>
+          <td class="text-center">${r.mouPending}</td>
+          <td class="text-center">${r.kioskBc}</td>
+          <td class="text-center">${r.digipay}</td>
+          <td class="text-center text-emerald-800 font-semibold">${r.activeVle}</td>
+          <td class="text-center text-rose-700 font-semibold">${r.inactiveVle}</td>
+          <td class="text-center font-semibold">${r.tx}</td>
+          <td class="text-center font-semibold">${r.amt}</td>
+          <td class="text-center">${r.vleMonthTx}</td>
+          <td class="text-center">${r.vleMonthAmt}</td>
+        </tr>`).join('');
+
+      document.getElementById('snapshotTableBody').innerHTML = makeTotalRow() + bodyRows + (list.length > 0 ? makeTotalRow() : '');
+    }
+
+    function printSnapshotLandscapePDF() {
+      // Switch @page rule dynamically to A4 Landscape with zero browser URL margins
+      document.getElementById('dynamicPageStyle').innerHTML = `@page { size: A4 landscape; margin: 0; }`;
+      const wrapper = document.getElementById('dedicatedPrintWrapper');
+      wrapper.className = 'landscape-report-print';
+      wrapper.innerHTML = document.getElementById('snapshotTableContainer').innerHTML;
+
+      setTimeout(() => {
+        window.print();
+        // Restore Portrait default for Notice PDF
+        setTimeout(() => {
+          document.getElementById('dynamicPageStyle').innerHTML = `@page { size: A4 portrait; margin: 0; }`;
+        }, 500);
+      }, 150);
+    }
+
+    function exportSnapshotFormattedExcel() {
+      const { isBlockMode, list, totals } = buildSnapshotRows();
+      const areaLabel = isBlockMode ? 'BLOCK NAME' : 'DISTRICT NAME';
+
+      // Build 3-tier merged header identical to snapshot
+      const aoa = [
+        ['ADSK REPORT - PHASE 1 TO 5', '', '', '', '', '', 'TYPE OF SERVICE', '', 'CUMMULATIVE REPORT 24 APR\'25 ONWARDS', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', '', 'VLE ACTIVE/INACTIVE', '', 'TOTAL TRANSACTION', '', 'VLE/MONTH TRANSACTION', ''],
+        ['SR.NO', areaLabel, 'NO. OF GP', 'NO. OF VLE', 'NO. OF MOU COMPLETED', 'NO. OF MOU PENDING', 'KIOSK BC', 'DIGIPAY', 'ACTIVE VLE', 'INACTIVE VLE', 'TRANSACTION', 'AMOUNT', 'TRANSACTION', 'AMOUNT'],
+        ['TOTAL', list.length, totals.gpCount, totals.vleCount, totals.mouCompleted, totals.mouPending, totals.kioskBc, totals.digipay, totals.activeVle, totals.inactiveVle, totals.tx, totals.amt, totals.vleMonthTx, totals.vleMonthAmt]
+      ];
+
+      list.forEach((r, idx) => {
+        aoa.push([
+          idx + 1, r.name, r.gpCount, r.vleCount, r.mouCompleted, r.mouPending,
+          r.kioskBc, r.digipay, r.activeVle, r.inactiveVle, r.tx, r.amt, r.vleMonthTx, r.vleMonthAmt
+        ]);
+      });
+
+      aoa.push([
+        'TOTAL', list.length, totals.gpCount, totals.vleCount, totals.mouCompleted, totals.mouPending,
+        totals.kioskBc, totals.digipay, totals.activeVle, totals.inactiveVle, totals.tx, totals.amt, totals.vleMonthTx, totals.vleMonthAmt
+      ]);
+
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+      // Merged Cells matching Snapshot Layout
+      ws['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 1, c: 5 } },   // ADSK REPORT - PHASE 1 TO 5
+        { s: { r: 0, c: 6 }, e: { r: 1, c: 7 } },   // TYPE OF SERVICE
+        { s: { r: 0, c: 8 }, e: { r: 0, c: 13 } },  // CUMMULATIVE REPORT 24 APR'25 ONWARDS
+        { s: { r: 1, c: 8 }, e: { r: 1, c: 9 } },   // VLE ACTIVE/INACTIVE
+        { s: { r: 1, c: 10 }, e: { r: 1, c: 11 } }, // TOTAL TRANSACTION
+        { s: { r: 1, c: 12 }, e: { r: 1, c: 13 } }  // VLE/MONTH TRANSACTION
+      ];
+
+      // Auto-arranged Column Widths for Single-Page Landscape Print
+      ws['!cols'] = [
+        { wch: 7 }, { wch: 34 }, { wch: 10 }, { wch: 10 }, { wch: 18 }, { wch: 16 },
+        { wch: 10 }, { wch: 10 }, { wch: 11 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 14 }, { wch: 14 }
+      ];
+
+      // Landscape Print Setup (Fit 1 page wide by 1 page tall)
+      ws['!pageSetup'] = { orientation: 'landscape', paperSize: 9, fitToWidth: 1, fitToHeight: 1 };
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'ADSK_Report');
+      XLSX.writeFile(wb, `ADSK_Phase_1_to_5_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    }
+
+    // =========================================================================
+    // 1) TOP TRANSACTING VLE LIST (DISTRICT & BLOCK WISE | CUMULATIVE & MONTHLY)
+    // =========================================================================
+    function computeTopVleList() {
+      const level = document.getElementById('topVleLevel').value;
+      const periodMode = document.getElementById('topVlePeriod').value;
+      const topN = Number(document.getElementById('topVleCount').value) || 3;
+      const metric = document.getElementById('topVleMetric').value;
+
+      const periodsToProcess = periodMode === 'ALL_MONTHS' ? availableMonths : [periodMode];
+      const outputRows = [];
+
+      periodsToProcess.forEach(pLabel => {
+        // Map records with period-specific tx & amt
+        const enriched = filteredData.map(r => {
+          let tx = 0, amt = 0;
+          if (pLabel === 'CUMULATIVE') {
+            tx = r.cumTx;
+            amt = r.cumAmt;
+          } else {
+            const mObj = r.monthly.find(m => m.month === pLabel);
+            if (mObj) { tx = mObj.tx; amt = mObj.amt; }
+          }
+          return { ...r, pTx: tx, pAmt: amt, periodLabel: pLabel };
+        }).filter(r => r.pTx > 0 || r.pAmt > 0);
+
+        const sortFn = (a, b) => metric === 'AMT' ? (b.pAmt - a.pAmt) : (b.pTx - a.pTx);
+
+        if (level === 'OVERALL') {
+          enriched.sort(sortFn).slice(0, topN).forEach((item, idx) => {
+            outputRows.push({ rank: idx + 1, ...item });
+          });
+        } else {
+          const groups = {};
+          enriched.forEach(item => {
+            const gKey = level === 'BLOCK' ? `${item.district}||${item.block}` : item.district;
+            if (!groups[gKey]) groups[gKey] = [];
+            groups[gKey].push(item);
+          });
+
+          Object.keys(groups).sort((a, b) => a.localeCompare(b)).forEach(gKey => {
+            groups[gKey].sort(sortFn).slice(0, topN).forEach((item, idx) => {
+              outputRows.push({ rank: idx + 1, ...item });
+            });
+          });
+        }
+      });
+
+      return outputRows;
+    }
+
+    function renderTopVleSection() {
+      const list = computeTopVleList();
+      const level = document.getElementById('topVleLevel').value;
+      const periodMode = document.getElementById('topVlePeriod').value;
+      const topN = document.getElementById('topVleCount').value;
+
+      document.getElementById('topVleSummaryLabel').textContent =
+        `Showing Top ${topN} (${level === 'DISTRICT' ? 'District-Wise' : level === 'BLOCK' ? 'Block-Wise' : 'Overall'}) — ${periodMode} | Total Matched: ${list.length.toLocaleString('en-IN')} VLEs`;
+
+      document.getElementById('topVleTableBody').innerHTML = list.slice(0, 200).map(r => `
+        <tr class="hover:bg-emerald-50/40">
+          <td class="p-2.5 font-extrabold text-indigo-800">#${r.rank}</td>
+          <td class="p-2.5 font-semibold text-blue-800">${r.periodLabel}</td>
+          <td class="p-2.5 font-bold text-slate-800">${r.district}</td>
+          <td class="p-2.5 text-slate-600">${r.block}</td>
+          <td class="p-2.5 font-semibold text-slate-800">${r.gp} <span class="text-slate-400">(${r.gpCode})</span></td>
+          <td class="p-2.5 font-semibold">${r.vleName}</td>
+          <td class="p-2.5 font-mono text-slate-600">${r.cscId}</td>
+          <td class="p-2.5 text-[11px]">${r.serviceType}</td>
+          <td class="p-2.5 text-right font-extrabold text-blue-700">${r.pTx.toLocaleString('en-IN')}</td>
+          <td class="p-2.5 text-right font-bold text-emerald-700">₹${Math.round(r.pAmt).toLocaleString('en-IN')}</td>
+        </tr>`).join('') || '<tr><td colspan="10" class="p-4 text-center text-slate-400">No transaction records found for selected filter.</td></tr>';
+    }
+
+    function downloadTopVlesExcel() {
+      const list = computeTopVleList();
+      if (!list.length) {
+        alert("Download ke liye koi Top VLE record uplabdh nahi hai.");
+        return;
+      }
+      const level = document.getElementById('topVleLevel').value;
+      const periodMode = document.getElementById('topVlePeriod').value;
+
+      const excelRows = list.map(r => ({
+        'Rank': r.rank,
+        'Period / Month': r.periodLabel,
+        'District': r.district,
+        'Block': r.block,
+        'Gram Panchayat': r.gp,
+        'GP Code': r.gpCode,
+        'VLE Name': r.vleName,
+        'CSC ID': r.cscId,
+        'Service Type': r.serviceType,
+        'MoU Status': r.mouStatus,
+        'Transactions': r.pTx,
+        'Amount (Rs)': Math.round(r.pAmt)
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(excelRows);
+      ws['!cols'] = [
+        { wch: 7 }, { wch: 15 }, { wch: 24 }, { wch: 20 }, { wch: 24 },
+        { wch: 12 }, { wch: 24 }, { wch: 16 }, { wch: 14 }, { wch: 16 }, { wch: 14 }, { wch: 16 }
+      ];
+      ws['!pageSetup'] = { orientation: 'landscape', paperSize: 9, fitToWidth: 1, fitToHeight: 0 };
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Top_Transacting_VLEs');
+      XLSX.writeFile(wb, `Top_Transacting_VLEs_${level}_${periodMode}_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    }
+
+    // =========================================================================
+    // TREND CHART, GEO TABLE, SARPANCH & CLEAN SINGLE-PAGE NOTICE PRINT
+    // =========================================================================
     function renderTrendChart() {
       const labels = availableMonths;
       const txSeries = labels.map((_, idx) => filteredData.reduce((sum, r) => sum + (r.monthly[idx]?.tx || 0), 0));
@@ -740,7 +1233,6 @@
       });
     }
 
-    // Sorting Handlers for District/Block Table
     function toggleGeoSort(key) {
       if (geoSortState.key === key) {
         geoSortState.dir = geoSortState.dir === 'asc' ? 'desc' : 'asc';
@@ -758,10 +1250,8 @@
       renderGeoTable();
     }
 
-    // Open Detailed GP/VLE Report in a New Browser Tab
     function openDrilldownNewTab(areaName, category, isBlockMode) {
       const selectedDist = document.getElementById('filterDistrict').value;
-      const selectedMonth = document.getElementById('filterMonth').value;
       const formatted3M = getLast3MonthsFormatted();
 
       const records = filteredData.filter(r => {
@@ -776,7 +1266,7 @@
         if (category === '3M_INACTIVE') return r.inactive3M;
         if (category === 'DOWNLOADED') return r.noticeDownloaded;
         if (category === 'PAWATI') return r.pawatiUploaded;
-        return true; // 'ALL'
+        return true;
       });
 
       const titleMap = {
@@ -822,7 +1312,7 @@
         <html lang="hi">
         <head>
           <meta charset="UTF-8">
-          <title>${areaName} - ${titleMap[category]} | ADSK Details</title>
+          <title>${areaName} - ${titleMap[category]}</title>
           <style>
             body { font-family: Arial, sans-serif; margin: 20px; background: #f8fafc; color: #1e293b; }
             .header { background: #1e3a8a; color: white; padding: 16px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
@@ -832,7 +1322,7 @@
             th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; }
             th { background: #e2e8f0; text-transform: uppercase; font-size: 11px; }
             tr:nth-child(even) { background: #f8fafc; }
-            @media print { .no-print { display: none; } body { margin: 5mm; background: white; } }
+            @media print { @page { margin: 8mm; } .no-print { display: none; } body { margin: 0; background: white; } }
           </style>
         </head>
         <body>
@@ -903,12 +1393,8 @@
         const m = getMetricsForRow(r, selectedMonth);
         map[key].gps++;
         if (isMouDone(r)) map[key].mou++;
-        // Cumulative Active & Inactive VLEs
-        if (r.isCumActive) {
-          map[key].active++;
-        } else {
-          map[key].inactive++;
-        }
+        if (r.isCumActive) map[key].active++;
+        else map[key].inactive++;
         if (r.inactive3M) map[key].inact3m++;
         if (r.noticeDownloaded) map[key].downloaded++;
         if (r.pawatiUploaded) map[key].pawati++;
@@ -1121,8 +1607,10 @@
         renderSarpanchTable();
       }
 
-      // Copy ONLY the single GP notice into dedicatedPrintWrapper so nothing else ever prints
+      // 2 & 3) Zero-margin A4 Portrait Print suppresses browser header title & footer URL
+      document.getElementById('dynamicPageStyle').innerHTML = `@page { size: A4 portrait; margin: 0; }`;
       const printWrapper = document.getElementById('dedicatedPrintWrapper');
+      printWrapper.className = 'notice-print';
       printWrapper.innerHTML = document.getElementById('noticeSheetContent').innerHTML;
 
       setTimeout(() => {
@@ -1226,9 +1714,9 @@
         document.getElementById(`view-${t}`).classList.toggle('hidden', t !== tab);
         const btn = document.getElementById(`tab-${t}`);
         if (t === tab) {
-          btn.className = 'tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg bg-slate-50 text-indigo-900 flex items-center gap-1.5';
+          btn.className = 'tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg bg-slate-50 text-indigo-900 flex items-center gap-1.5 whitespace-nowrap';
         } else {
-          btn.className = 'tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg text-blue-100 hover:bg-white/10 flex items-center gap-1.5';
+          btn.className = 'tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg text-blue-100 hover:bg-white/10 flex items-center gap-1.5 whitespace-nowrap';
         }
       });
     }
@@ -1243,6 +1731,7 @@
           'GP Code': r.gpCode,
           'CSC ID': r.cscId,
           'VLE Name': r.vleName,
+          'Service Type': r.serviceType,
           'MoU Status': r.mouStatus,
           'Phase': r.phase,
           'Cumulative Status': r.isCumActive ? 'ACTIVE' : 'INACTIVE',
@@ -1261,7 +1750,6 @@
       XLSX.writeFile(wb, `ADSK_Monitoring_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
     }
 
-    // Boot Portal: Show cached data immediately, then auto-sync silently every 5 minutes
     (function bootPortal() {
       try {
         const cachedStr = localStorage.getItem(LOCAL_CACHE_KEY);
