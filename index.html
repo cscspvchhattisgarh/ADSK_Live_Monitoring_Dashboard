@@ -9,68 +9,28 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
   <style id="dynamicPageStyle">
-    @page {
-      size: A4 portrait;
-      margin: 0;
-    }
+    @page { size: A4 portrait; margin: 0; }
   </style>
   <style>
     .hindi-doc { font-family: 'Noto Sans Devanagari', sans-serif; }
-
-    /* Snapshot Report Table Styling */
-    .snap-table th, .snap-table td {
-      border: 1px solid #334155;
-      padding: 4px 6px;
-      white-space: nowrap;
-    }
-    .snap-table thead th {
-      background-color: #f8fafc;
-      color: #0f172a;
-      font-weight: 700;
-      text-align: center;
-    }
+    .snap-table th, .snap-table td { border: 1px solid #334155; padding: 4px 6px; white-space: nowrap; }
+    .snap-table thead th { background-color: #f8fafc; color: #0f172a; font-weight: 700; text-align: center; }
 
     @media print {
-      html, body {
-        background: #ffffff !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        height: auto !important;
-      }
-      body > *:not(#dedicatedPrintWrapper) {
-        display: none !important;
-      }
+      html, body { background: #ffffff !important; margin: 0 !important; padding: 0 !important; height: auto !important; }
+      body > *:not(#dedicatedPrintWrapper) { display: none !important; }
       #dedicatedPrintWrapper {
-        display: block !important;
-        width: 100% !important;
-        margin: 0 !important;
-        box-sizing: border-box !important;
-        background: #ffffff !important;
-        color: #000000 !important;
+        display: block !important; width: 100% !important; margin: 0 !important;
+        box-sizing: border-box !important; background: #ffffff !important; color: #000000 !important;
       }
-      /* Portrait Notice Print */
       #dedicatedPrintWrapper.notice-print {
-        padding: 12mm 15mm !important;
-        font-family: 'Noto Sans Devanagari', sans-serif !important;
-        font-size: 13px !important;
-        line-height: 1.55 !important;
+        padding: 12mm 15mm !important; font-family: 'Noto Sans Devanagari', sans-serif !important;
+        font-size: 13px !important; line-height: 1.55 !important;
       }
-      /* Landscape Report Print */
-      #dedicatedPrintWrapper.landscape-report-print {
-        padding: 6mm 8mm !important;
-        font-family: Arial, sans-serif !important;
-      }
-      #dedicatedPrintWrapper.landscape-report-print table {
-        width: 100% !important;
-        border-collapse: collapse !important;
-        font-size: 9.5px !important;
-      }
+      #dedicatedPrintWrapper.landscape-report-print { padding: 6mm 8mm !important; font-family: Arial, sans-serif !important; }
+      #dedicatedPrintWrapper.landscape-report-print table { width: 100% !important; border-collapse: collapse !important; font-size: 9.5px !important; }
       #dedicatedPrintWrapper.landscape-report-print th,
-      #dedicatedPrintWrapper.landscape-report-print td {
-        border: 1px solid #000000 !important;
-        padding: 2.5px 4px !important;
-        color: #000000 !important;
-      }
+      #dedicatedPrintWrapper.landscape-report-print td { border: 1px solid #000000 !important; padding: 2.5px 4px !important; color: #000000 !important; }
     }
   </style>
 </head>
@@ -90,7 +50,6 @@
         <h1 class="text-xl md:text-2xl font-bold mt-1">Atal Digital Suvidha Kendra — Monitoring Portal</h1>
       </div>
 
-      <!-- Silent Auto-Sync Status & Export -->
       <div class="flex flex-wrap items-center gap-2">
         <div class="bg-white/10 border border-white/15 rounded-lg px-3 py-1.5 flex items-center gap-2 text-xs">
           <span class="font-semibold text-emerald-300">Auto-Sync (5m)</span>
@@ -204,10 +163,10 @@
       </div>
     </div>
 
-    <!-- TAB 1: SNAPSHOT REPORT (ABOVE TREND CHART), TREND CHART & TOP VLE LIST -->
+    <!-- TAB 1: SNAPSHOT REPORT, TREND CHART & TOP VLE LIST -->
     <div id="view-overview" class="space-y-6">
 
-      <!-- 4) SNAPSHOT STYLE MULTI-HEADER REPORT (ABOVE TREND CHART) -->
+      <!-- Snapshot Multi-Header Report -->
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
           <div>
@@ -216,15 +175,9 @@
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <button onclick="printSnapshotLandscapePDF()" class="bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold px-3.5 py-2 rounded-lg shadow flex items-center gap-1.5 transition">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-              </svg>
               Print / Download Landscape PDF
             </button>
             <button onclick="exportSnapshotFormattedExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg shadow flex items-center gap-1.5 transition">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
               Download Auto-Arranged Excel
             </button>
           </div>
@@ -236,7 +189,7 @@
               <tr>
                 <th colspan="6" rowspan="2" class="text-sm font-extrabold tracking-wide bg-slate-100">ADSK REPORT - PHASE 1 TO 5</th>
                 <th colspan="2" rowspan="2" class="text-xs font-extrabold bg-slate-100">TYPE OF SERVICE</th>
-                <th colspan="6" id="snapCumBannerHeader" class="text-xs font-extrabold bg-blue-50 text-blue-950">CUMMULATIVE REPORT 24 APR'25 ONWARDS</th>
+                <th colspan="6" class="text-xs font-extrabold bg-blue-50 text-blue-950">CUMMULATIVE REPORT 24 APR'25 ONWARDS</th>
               </tr>
               <tr>
                 <th colspan="2" class="bg-emerald-50 text-emerald-950">VLE ACTIVE/INACTIVE</th>
@@ -276,7 +229,7 @@
         </div>
       </div>
 
-      <!-- 1) TOP TRANSACTING VLE LIST (DISTRICT-WISE & BLOCK-WISE | CUMULATIVE & MONTHLY) -->
+      <!-- Top Transacting VLE List -->
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 pb-4 border-b border-slate-200">
           <div>
@@ -286,16 +239,11 @@
             </div>
             <p class="text-xs text-slate-500 mt-0.5">Apni requirement ke anusaar District-wise ya Block-wise (Cumulative ya Monthly) Top VLE list nikalein aur Excel download karein</p>
           </div>
-
-          <button onclick="downloadTopVlesExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow flex items-center gap-1.5 transition self-start lg:self-auto">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
+          <button onclick="downloadTopVlesExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow transition self-start lg:self-auto">
             Download Top VLE List (Excel)
           </button>
         </div>
 
-        <!-- Filter & Requirement Controls -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 my-4 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
           <div>
             <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">1. Grouping Level</label>
@@ -305,7 +253,6 @@
               <option value="OVERALL">Overall State / Filtered Top VLEs</option>
             </select>
           </div>
-
           <div>
             <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">2. Period Basis</label>
             <select id="topVlePeriod" onchange="renderTopVleSection()" class="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-white text-blue-900">
@@ -313,7 +260,6 @@
               <option value="ALL_MONTHS">Monthly Basis (All Months — Month-by-Month)</option>
             </select>
           </div>
-
           <div>
             <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">3. Top VLE Count</label>
             <select id="topVleCount" onchange="renderTopVleSection()" class="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-white text-slate-800">
@@ -325,7 +271,6 @@
               <option value="50">Top 50 VLEs</option>
             </select>
           </div>
-
           <div>
             <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">4. Ranking Criteria</label>
             <select id="topVleMetric" onchange="renderTopVleSection()" class="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-white text-emerald-900">
@@ -510,12 +455,8 @@
           </div>
 
           <div class="mb-3 space-y-1 text-[13.5px]">
-            <p class="font-bold">
-              विषय: अटल पंचायत डिजिटल सुविधा केंद्र के संचालन हेतु निष्पादित समझौता ज्ञापन (MoU) को समाप्त करने बाबत।
-            </p>
-            <p>
-              <span class="font-bold">संदर्भ:</span> ग्राम पंचायत एवं आपके मध्य निष्पादित समझौता ज्ञापन (MoU)।
-            </p>
+            <p class="font-bold">विषय: अटल पंचायत डिजिटल सुविधा केंद्र के संचालन हेतु निष्पादित समझौता ज्ञापन (MoU) को समाप्त करने बाबत।</p>
+            <p><span class="font-bold">संदर्भ:</span> ग्राम पंचायत एवं आपके मध्य निष्पादित समझौता ज्ञापन (MoU)।</p>
           </div>
 
           <div class="space-y-2.5 text-justify text-[13.5px]">
@@ -529,9 +470,7 @@
             <p class="indent-8">
               अतः समझौता ज्ञापन (MoU) की कंडिका 10 (दंड और अनुशासनात्मक कार्रवाई) एवं कंडिका 11 (शर्तें और उल्लंघन) में निहित प्रावधानों के तहत आपको आगामी 30 दिवस दिनांक <span id="docDeadlineDate" class="font-bold underline"></span> तक उक्त बैंकिंग एवं नकद आहरण सेवाएं प्रदान करने हेतु निर्देशित किया जाता है। उक्त सेवाएं प्रदान न कर पाने की स्थिति में ग्राम पंचायत द्वारा आपके साथ निष्पादित उक्त समझौता ज्ञापन (MoU) को समाप्त किया जाएगा।
             </p>
-            <p class="indent-8">
-              कृपया आदेश का तत्काल पालन सुनिश्चित करें।
-            </p>
+            <p class="indent-8">कृपया आदेश का तत्काल पालन सुनिश्चित करें।</p>
           </div>
 
           <div class="mt-6 flex justify-end">
@@ -603,18 +542,48 @@
 
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQViqSWtkH7N5TAw4B4ZKJzVrOlpmyAj99X_nLU06lwqD6eJtN6Uv5ZqL22o__7VN1/exec";
-    const LOCAL_CACHE_KEY = 'ADSK_PORTAL_CACHE_V8';
+    const IDB_NAME = 'ADSK_FAST_DB';
+    const IDB_STORE = 'cacheStore';
     const AUTO_SYNC_MS = 5 * 60 * 1000;
 
     let rawData = [];
     let filteredData = [];
+    let sarpanchCurrentList = [];
     let availableMonths = [];
     let trackingMap = {};
     let trendChartInstance = null;
     let isFirstLoad = true;
     let isSyncing = false;
     let activeRecord = null;
+    let activeTab = 'overview';
+    let dirtyTabs = { overview: true, geo: true, sarpanch: true };
     let geoSortState = { key: 'name', dir: 'asc' };
+
+    // Fast Non-Blocking IndexedDB Cache Helpers
+    function saveToIDB(payload) {
+      try {
+        const req = indexedDB.open(IDB_NAME, 1);
+        req.onupgradeneeded = (e) => e.target.result.createObjectStore(IDB_STORE);
+        req.onsuccess = (e) => {
+          const tx = e.target.result.transaction(IDB_STORE, 'readwrite');
+          tx.objectStore(IDB_STORE).put(payload, 'latest');
+        };
+      } catch (e) {}
+    }
+
+    function loadFromIDB(cb) {
+      try {
+        const req = indexedDB.open(IDB_NAME, 1);
+        req.onupgradeneeded = (e) => e.target.result.createObjectStore(IDB_STORE);
+        req.onsuccess = (e) => {
+          const tx = e.target.result.transaction(IDB_STORE, 'readonly');
+          const getReq = tx.objectStore(IDB_STORE).get('latest');
+          getReq.onsuccess = () => cb(getReq.result || null);
+          getReq.onerror = () => cb(null);
+        };
+        req.onerror = () => cb(null);
+      } catch (e) { cb(null); }
+    }
 
     function syncDashboardData(forceFresh = false) {
       if (isSyncing) return;
@@ -627,7 +596,7 @@
 
       const script = document.createElement('script');
       script.id = 'gas-jsonp-script';
-      script.src = `${SCRIPT_URL}?callback=handleGasResponse&refresh=${forceFresh ? '1' : '0'}&t=${Date.now()}`;
+      script.src = `${SCRIPT_URL}?callback=handleGasResponse&refresh=${forceFresh ? '1' : '0'}`;
 
       script.onerror = () => {
         isSyncing = false;
@@ -643,29 +612,41 @@
       const dict = Array.isArray(json.dict) ? json.dict : null;
       const fromDict = (val) => (dict && typeof val === 'number' && val >= 0 && dict[val] !== undefined) ? dict[val] : String(val || '').trim();
 
-      rawData = (json.records || []).map(r => {
-        const trackKey = `${r[5]}_${r[6]}`;
-        const tr = trackingMap[trackKey] || { downloaded: false, pawatiUploaded: false, pawatiUrl: '' };
+      const recs = json.records || [];
+      rawData = new Array(recs.length);
 
-        const monthlyArr = (r[12] || []).map((m, i) => ({
-          month: availableMonths[i],
-          tx: Number(m[0]) || 0,
-          amt: Number(m[1]) || 0,
-          status: m[2] === 1 ? 'ACTIVE' : 'INACTIVE'
-        }));
+      for (let idx = 0; idx < recs.length; idx++) {
+        const r = recs[idx];
+        const gpCode = String(r[5] || '').trim();
+        const cscId = String(r[6] || '').trim();
+        const tr = trackingMap[`${gpCode}_${cscId}`] || { downloaded: false, pawatiUploaded: false, pawatiUrl: '' };
+
+        const mRaw = r[12] || [];
+        const monthlyArr = new Array(mRaw.length);
+        let anyActive = false;
+        for (let i = 0; i < mRaw.length; i++) {
+          const m = mRaw[i];
+          const isAct = m[2] === 1;
+          if (isAct) anyActive = true;
+          monthlyArr[i] = {
+            month: availableMonths[i],
+            tx: Number(m[0]) || 0,
+            amt: Number(m[1]) || 0,
+            status: isAct ? 'ACTIVE' : 'INACTIVE'
+          };
+        }
 
         const cumTx = Number(r[13]) || 0;
         const cumAmt = Number(r[14]) || 0;
-        const isCumActive = cumTx > 0 || monthlyArr.some(m => m.status === 'ACTIVE');
 
-        return {
+        rawData[idx] = {
           district: fromDict(r[0]),
           districtCode: fromDict(r[1]),
           block: fromDict(r[2]),
           blockCode: fromDict(r[3]),
           gp: String(r[4] || '').trim(),
-          gpCode: String(r[5] || '').trim(),
-          cscId: String(r[6] || '').trim(),
+          gpCode,
+          cscId,
           vleName: String(r[7] || '').trim(),
           mouStatus: fromDict(r[8]).toUpperCase(),
           serviceType: fromDict(r[9]).toUpperCase(),
@@ -674,7 +655,7 @@
           monthly: monthlyArr,
           cumTx,
           cumAmt,
-          isCumActive,
+          isCumActive: cumTx > 0 || anyActive,
           inactive3M: r[15] === 1,
           noticeDownloaded: tr.downloaded,
           downloadTime: tr.downloadTime || '',
@@ -682,7 +663,7 @@
           pawatiUrl: tr.pawatiUrl || '',
           uploadTime: tr.uploadTime || ''
         };
-      });
+      }
 
       if (isFirstLoad) {
         populateDropdowns();
@@ -695,7 +676,7 @@
       applyFilters();
 
       if (!fromLocalCache) {
-        try { localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(json)); } catch (e) {}
+        saveToIDB(json);
       }
     }
 
@@ -821,6 +802,7 @@
       return mObj ? { tx: mObj.tx, amt: mObj.amt, isActive: mObj.status === 'ACTIVE' } : { tx: 0, amt: 0, isActive: false };
     }
 
+    // Lazy-Tab Rendering: Only render currently visible tab immediately
     function applyFilters() {
       const dist = document.getElementById('filterDistrict').value;
       const block = document.getElementById('filterBlock').value;
@@ -837,11 +819,23 @@
       });
 
       updateKPIs(selectedMonth);
-      renderSnapshotReport();
-      renderTrendChart();
-      renderTopVleSection();
-      renderGeoTable();
-      renderSarpanchTable();
+      dirtyTabs = { overview: true, geo: true, sarpanch: true };
+      renderActiveTabContent();
+    }
+
+    function renderActiveTabContent() {
+      if (activeTab === 'overview' && dirtyTabs.overview) {
+        renderSnapshotReport();
+        renderTrendChart();
+        renderTopVleSection();
+        dirtyTabs.overview = false;
+      } else if (activeTab === 'geo' && dirtyTabs.geo) {
+        renderGeoTable();
+        dirtyTabs.geo = false;
+      } else if (activeTab === 'sarpanch' && dirtyTabs.sarpanch) {
+        renderSarpanchTable();
+        dirtyTabs.sarpanch = false;
+      }
     }
 
     function isMouDone(r) {
@@ -850,18 +844,20 @@
 
     function updateKPIs(selectedMonth) {
       const total = filteredData.length;
-      const mouDone = filteredData.filter(isMouDone).length;
-      const inactive3M = filteredData.filter(r => r.inactive3M).length;
-      const downloadedCnt = filteredData.filter(r => r.noticeDownloaded).length;
-      const pawatiCnt = filteredData.filter(r => r.pawatiUploaded).length;
-
+      let mouDone = 0, inactive3M = 0, downloadedCnt = 0, pawatiCnt = 0;
       let activeCount = 0, totalTx = 0, totalAmt = 0;
-      filteredData.forEach(r => {
+
+      for (let i = 0; i < total; i++) {
+        const r = filteredData[i];
+        if (isMouDone(r)) mouDone++;
+        if (r.inactive3M) inactive3M++;
+        if (r.noticeDownloaded) downloadedCnt++;
+        if (r.pawatiUploaded) pawatiCnt++;
         const m = getMetricsForRow(r, selectedMonth);
         if (m.isActive) activeCount++;
         totalTx += m.tx;
         totalAmt += m.amt;
-      });
+      }
 
       document.getElementById('kpiTotalGPs').textContent = total.toLocaleString('en-IN');
       document.getElementById('kpiMouDone').textContent = mouDone.toLocaleString('en-IN');
@@ -880,82 +876,45 @@
       document.getElementById('trackPawatiUploaded').textContent = pawatiCnt.toLocaleString('en-IN');
     }
 
-    // =========================================================================
-    // 4) SNAPSHOT REPORT (ADSK REPORT - PHASE 1 TO 5) + LANDSCAPE PDF + EXCEL
-    // =========================================================================
+    // Snapshot Report (ADSK REPORT - PHASE 1 TO 5)
     function buildSnapshotRows() {
       const selectedDist = document.getElementById('filterDistrict').value;
       const isBlockMode = selectedDist !== 'ALL';
       const monthCount = availableMonths.length || 1;
 
       const map = {};
-      filteredData.forEach(r => {
+      for (let i = 0; i < filteredData.length; i++) {
+        const r = filteredData[i];
         const key = isBlockMode ? r.block : r.district;
-        if (!key) return;
+        if (!key) continue;
         if (!map[key]) {
-          map[key] = {
-            name: key,
-            gpSet: new Set(),
-            vleCount: 0,
-            mouCompleted: 0,
-            mouPending: 0,
-            kioskBc: 0,
-            digipay: 0,
-            activeVle: 0,
-            inactiveVle: 0,
-            tx: 0,
-            amt: 0
-          };
+          map[key] = { name: key, gpSet: new Set(), vleCount: 0, mouCompleted: 0, mouPending: 0, kioskBc: 0, digipay: 0, activeVle: 0, inactiveVle: 0, tx: 0, amt: 0 };
         }
         const g = map[key];
         g.gpSet.add(r.gpCode || r.gp);
         g.vleCount++;
-        if (isMouDone(r)) g.mouCompleted++;
-        else g.mouPending++;
-
-        if (r.serviceType.includes('KIOSK') || r.serviceType.includes('BC')) g.kioskBc++;
-        else g.digipay++;
-
-        if (r.isCumActive) g.activeVle++;
-        else g.inactiveVle++;
-
+        if (isMouDone(r)) g.mouCompleted++; else g.mouPending++;
+        if (r.serviceType.includes('KIOSK') || r.serviceType.includes('BC')) g.kioskBc++; else g.digipay++;
+        if (r.isCumActive) g.activeVle++; else g.inactiveVle++;
         g.tx += r.cumTx;
         g.amt += r.cumAmt;
+      }
+
+      const list = Object.values(map).sort((a, b) => a.name.localeCompare(b.name)).map(g => {
+        const gpCount = g.gpSet.size || g.vleCount;
+        const denom = (g.vleCount * monthCount) || 1;
+        return {
+          name: g.name, gpCount, vleCount: g.vleCount, mouCompleted: g.mouCompleted, mouPending: g.mouPending,
+          kioskBc: g.kioskBc, digipay: g.digipay, activeVle: g.activeVle, inactiveVle: g.inactiveVle,
+          tx: Math.round(g.tx), amt: Math.round(g.amt),
+          vleMonthTx: Math.round(g.tx / denom), vleMonthAmt: Math.round(g.amt / denom)
+        };
       });
 
-      const list = Object.values(map)
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map(g => {
-          const gpCount = g.gpSet.size || g.vleCount;
-          const denom = (g.vleCount * monthCount) || 1;
-          return {
-            name: g.name,
-            gpCount,
-            vleCount: g.vleCount,
-            mouCompleted: g.mouCompleted,
-            mouPending: g.mouPending,
-            kioskBc: g.kioskBc,
-            digipay: g.digipay,
-            activeVle: g.activeVle,
-            inactiveVle: g.inactiveVle,
-            tx: Math.round(g.tx),
-            amt: Math.round(g.amt),
-            vleMonthTx: Math.round(g.tx / denom),
-            vleMonthAmt: Math.round(g.amt / denom)
-          };
-        });
-
       const totals = list.reduce((acc, row) => {
-        acc.gpCount += row.gpCount;
-        acc.vleCount += row.vleCount;
-        acc.mouCompleted += row.mouCompleted;
-        acc.mouPending += row.mouPending;
-        acc.kioskBc += row.kioskBc;
-        acc.digipay += row.digipay;
-        acc.activeVle += row.activeVle;
-        acc.inactiveVle += row.inactiveVle;
-        acc.tx += row.tx;
-        acc.amt += row.amt;
+        acc.gpCount += row.gpCount; acc.vleCount += row.vleCount; acc.mouCompleted += row.mouCompleted;
+        acc.mouPending += row.mouPending; acc.kioskBc += row.kioskBc; acc.digipay += row.digipay;
+        acc.activeVle += row.activeVle; acc.inactiveVle += row.inactiveVle; acc.tx += row.tx; acc.amt += row.amt;
         return acc;
       }, { gpCount: 0, vleCount: 0, mouCompleted: 0, mouPending: 0, kioskBc: 0, digipay: 0, activeVle: 0, inactiveVle: 0, tx: 0, amt: 0 });
 
@@ -1010,7 +969,6 @@
     }
 
     function printSnapshotLandscapePDF() {
-      // Switch @page rule dynamically to A4 Landscape with zero browser URL margins
       document.getElementById('dynamicPageStyle').innerHTML = `@page { size: A4 landscape; margin: 0; }`;
       const wrapper = document.getElementById('dedicatedPrintWrapper');
       wrapper.className = 'landscape-report-print';
@@ -1018,18 +976,16 @@
 
       setTimeout(() => {
         window.print();
-        // Restore Portrait default for Notice PDF
         setTimeout(() => {
           document.getElementById('dynamicPageStyle').innerHTML = `@page { size: A4 portrait; margin: 0; }`;
         }, 500);
-      }, 150);
+      }, 100);
     }
 
     function exportSnapshotFormattedExcel() {
       const { isBlockMode, list, totals } = buildSnapshotRows();
       const areaLabel = isBlockMode ? 'BLOCK NAME' : 'DISTRICT NAME';
 
-      // Build 3-tier merged header identical to snapshot
       const aoa = [
         ['ADSK REPORT - PHASE 1 TO 5', '', '', '', '', '', 'TYPE OF SERVICE', '', 'CUMMULATIVE REPORT 24 APR\'25 ONWARDS', '', '', '', '', ''],
         ['', '', '', '', '', '', '', '', 'VLE ACTIVE/INACTIVE', '', 'TOTAL TRANSACTION', '', 'VLE/MONTH TRANSACTION', ''],
@@ -1038,36 +994,24 @@
       ];
 
       list.forEach((r, idx) => {
-        aoa.push([
-          idx + 1, r.name, r.gpCount, r.vleCount, r.mouCompleted, r.mouPending,
-          r.kioskBc, r.digipay, r.activeVle, r.inactiveVle, r.tx, r.amt, r.vleMonthTx, r.vleMonthAmt
-        ]);
+        aoa.push([idx + 1, r.name, r.gpCount, r.vleCount, r.mouCompleted, r.mouPending, r.kioskBc, r.digipay, r.activeVle, r.inactiveVle, r.tx, r.amt, r.vleMonthTx, r.vleMonthAmt]);
       });
 
-      aoa.push([
-        'TOTAL', list.length, totals.gpCount, totals.vleCount, totals.mouCompleted, totals.mouPending,
-        totals.kioskBc, totals.digipay, totals.activeVle, totals.inactiveVle, totals.tx, totals.amt, totals.vleMonthTx, totals.vleMonthAmt
-      ]);
+      aoa.push(['TOTAL', list.length, totals.gpCount, totals.vleCount, totals.mouCompleted, totals.mouPending, totals.kioskBc, totals.digipay, totals.activeVle, totals.inactiveVle, totals.tx, totals.amt, totals.vleMonthTx, totals.vleMonthAmt]);
 
       const ws = XLSX.utils.aoa_to_sheet(aoa);
-
-      // Merged Cells matching Snapshot Layout
       ws['!merges'] = [
-        { s: { r: 0, c: 0 }, e: { r: 1, c: 5 } },   // ADSK REPORT - PHASE 1 TO 5
-        { s: { r: 0, c: 6 }, e: { r: 1, c: 7 } },   // TYPE OF SERVICE
-        { s: { r: 0, c: 8 }, e: { r: 0, c: 13 } },  // CUMMULATIVE REPORT 24 APR'25 ONWARDS
-        { s: { r: 1, c: 8 }, e: { r: 1, c: 9 } },   // VLE ACTIVE/INACTIVE
-        { s: { r: 1, c: 10 }, e: { r: 1, c: 11 } }, // TOTAL TRANSACTION
-        { s: { r: 1, c: 12 }, e: { r: 1, c: 13 } }  // VLE/MONTH TRANSACTION
+        { s: { r: 0, c: 0 }, e: { r: 1, c: 5 } },
+        { s: { r: 0, c: 6 }, e: { r: 1, c: 7 } },
+        { s: { r: 0, c: 8 }, e: { r: 0, c: 13 } },
+        { s: { r: 1, c: 8 }, e: { r: 1, c: 9 } },
+        { s: { r: 1, c: 10 }, e: { r: 1, c: 11 } },
+        { s: { r: 1, c: 12 }, e: { r: 1, c: 13 } }
       ];
-
-      // Auto-arranged Column Widths for Single-Page Landscape Print
       ws['!cols'] = [
         { wch: 7 }, { wch: 34 }, { wch: 10 }, { wch: 10 }, { wch: 18 }, { wch: 16 },
         { wch: 10 }, { wch: 10 }, { wch: 11 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 14 }, { wch: 14 }
       ];
-
-      // Landscape Print Setup (Fit 1 page wide by 1 page tall)
       ws['!pageSetup'] = { orientation: 'landscape', paperSize: 9, fitToWidth: 1, fitToHeight: 1 };
 
       const wb = XLSX.utils.book_new();
@@ -1075,9 +1019,7 @@
       XLSX.writeFile(wb, `ADSK_Phase_1_to_5_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
     }
 
-    // =========================================================================
-    // 1) TOP TRANSACTING VLE LIST (DISTRICT & BLOCK WISE | CUMULATIVE & MONTHLY)
-    // =========================================================================
+    // Top Transacting VLE List
     function computeTopVleList() {
       const level = document.getElementById('topVleLevel').value;
       const periodMode = document.getElementById('topVlePeriod').value;
@@ -1088,36 +1030,40 @@
       const outputRows = [];
 
       periodsToProcess.forEach(pLabel => {
-        // Map records with period-specific tx & amt
-        const enriched = filteredData.map(r => {
+        const mIdx = pLabel === 'CUMULATIVE' ? -1 : availableMonths.indexOf(pLabel);
+        const enriched = [];
+
+        for (let i = 0; i < filteredData.length; i++) {
+          const r = filteredData[i];
           let tx = 0, amt = 0;
-          if (pLabel === 'CUMULATIVE') {
-            tx = r.cumTx;
-            amt = r.cumAmt;
-          } else {
-            const mObj = r.monthly.find(m => m.month === pLabel);
-            if (mObj) { tx = mObj.tx; amt = mObj.amt; }
+          if (mIdx === -1) {
+            tx = r.cumTx; amt = r.cumAmt;
+          } else if (r.monthly[mIdx]) {
+            tx = r.monthly[mIdx].tx; amt = r.monthly[mIdx].amt;
           }
-          return { ...r, pTx: tx, pAmt: amt, periodLabel: pLabel };
-        }).filter(r => r.pTx > 0 || r.pAmt > 0);
+          if (tx > 0 || amt > 0) {
+            enriched.push({ ref: r, pTx: tx, pAmt: amt, periodLabel: pLabel });
+          }
+        }
 
         const sortFn = (a, b) => metric === 'AMT' ? (b.pAmt - a.pAmt) : (b.pTx - a.pTx);
 
         if (level === 'OVERALL') {
           enriched.sort(sortFn).slice(0, topN).forEach((item, idx) => {
-            outputRows.push({ rank: idx + 1, ...item });
+            outputRows.push({ rank: idx + 1, ...item.ref, pTx: item.pTx, pAmt: item.pAmt, periodLabel: item.periodLabel });
           });
         } else {
           const groups = {};
-          enriched.forEach(item => {
-            const gKey = level === 'BLOCK' ? `${item.district}||${item.block}` : item.district;
+          for (let i = 0; i < enriched.length; i++) {
+            const item = enriched[i];
+            const gKey = level === 'BLOCK' ? `${item.ref.district}||${item.ref.block}` : item.ref.district;
             if (!groups[gKey]) groups[gKey] = [];
             groups[gKey].push(item);
-          });
+          }
 
           Object.keys(groups).sort((a, b) => a.localeCompare(b)).forEach(gKey => {
             groups[gKey].sort(sortFn).slice(0, topN).forEach((item, idx) => {
-              outputRows.push({ rank: idx + 1, ...item });
+              outputRows.push({ rank: idx + 1, ...item.ref, pTx: item.pTx, pAmt: item.pAmt, periodLabel: item.periodLabel });
             });
           });
         }
@@ -1152,33 +1098,18 @@
 
     function downloadTopVlesExcel() {
       const list = computeTopVleList();
-      if (!list.length) {
-        alert("Download ke liye koi Top VLE record uplabdh nahi hai.");
-        return;
-      }
+      if (!list.length) { alert("Download ke liye koi Top VLE record uplabdh nahi hai."); return; }
       const level = document.getElementById('topVleLevel').value;
       const periodMode = document.getElementById('topVlePeriod').value;
 
       const excelRows = list.map(r => ({
-        'Rank': r.rank,
-        'Period / Month': r.periodLabel,
-        'District': r.district,
-        'Block': r.block,
-        'Gram Panchayat': r.gp,
-        'GP Code': r.gpCode,
-        'VLE Name': r.vleName,
-        'CSC ID': r.cscId,
-        'Service Type': r.serviceType,
-        'MoU Status': r.mouStatus,
-        'Transactions': r.pTx,
-        'Amount (Rs)': Math.round(r.pAmt)
+        'Rank': r.rank, 'Period / Month': r.periodLabel, 'District': r.district, 'Block': r.block,
+        'Gram Panchayat': r.gp, 'GP Code': r.gpCode, 'VLE Name': r.vleName, 'CSC ID': r.cscId,
+        'Service Type': r.serviceType, 'MoU Status': r.mouStatus, 'Transactions': r.pTx, 'Amount (Rs)': Math.round(r.pAmt)
       }));
 
       const ws = XLSX.utils.json_to_sheet(excelRows);
-      ws['!cols'] = [
-        { wch: 7 }, { wch: 15 }, { wch: 24 }, { wch: 20 }, { wch: 24 },
-        { wch: 12 }, { wch: 24 }, { wch: 16 }, { wch: 14 }, { wch: 16 }, { wch: 14 }, { wch: 16 }
-      ];
+      ws['!cols'] = [{ wch: 7 }, { wch: 15 }, { wch: 24 }, { wch: 20 }, { wch: 24 }, { wch: 12 }, { wch: 24 }, { wch: 16 }, { wch: 14 }, { wch: 16 }, { wch: 14 }, { wch: 16 }];
       ws['!pageSetup'] = { orientation: 'landscape', paperSize: 9, fitToWidth: 1, fitToHeight: 0 };
 
       const wb = XLSX.utils.book_new();
@@ -1186,9 +1117,6 @@
       XLSX.writeFile(wb, `Top_Transacting_VLEs_${level}_${periodMode}_${new Date().toISOString().slice(0, 10)}.xlsx`);
     }
 
-    // =========================================================================
-    // TREND CHART, GEO TABLE, SARPANCH & CLEAN SINGLE-PAGE NOTICE PRINT
-    // =========================================================================
     function renderTrendChart() {
       const labels = availableMonths;
       const txSeries = labels.map((_, idx) => filteredData.reduce((sum, r) => sum + (r.monthly[idx]?.tx || 0), 0));
@@ -1202,29 +1130,12 @@
         data: {
           labels,
           datasets: [
-            {
-              label: 'Monthly Transactions',
-              data: txSeries,
-              backgroundColor: 'rgba(30, 58, 138, 0.75)',
-              yAxisID: 'y',
-              borderRadius: 4
-            },
-            {
-              label: 'Active VLEs',
-              data: activeSeries,
-              type: 'line',
-              borderColor: '#059669',
-              backgroundColor: '#059669',
-              borderWidth: 2.5,
-              tension: 0.3,
-              yAxisID: 'y1'
-            }
+            { label: 'Monthly Transactions', data: txSeries, backgroundColor: 'rgba(30, 58, 138, 0.75)', yAxisID: 'y', borderRadius: 4 },
+            { label: 'Active VLEs', data: activeSeries, type: 'line', borderColor: '#059669', backgroundColor: '#059669', borderWidth: 2.5, tension: 0.3, yAxisID: 'y1' }
           ]
         },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: false,
+          responsive: true, maintainAspectRatio: false, animation: false,
           scales: {
             y: { type: 'linear', position: 'left', title: { display: true, text: 'Transactions' } },
             y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Active VLEs' } }
@@ -1255,11 +1166,7 @@
       const formatted3M = getLast3MonthsFormatted();
 
       const records = filteredData.filter(r => {
-        if (isBlockMode) {
-          if (r.block !== areaName) return false;
-        } else {
-          if (r.district !== areaName) return false;
-        }
+        if (isBlockMode ? r.block !== areaName : r.district !== areaName) return false;
         if (category === 'MOU') return isMouDone(r);
         if (category === 'ACTIVE') return r.isCumActive;
         if (category === 'INACTIVE') return !r.isCumActive;
@@ -1270,13 +1177,10 @@
       });
 
       const titleMap = {
-        'ALL': 'All Mapped Gram Panchayats',
-        'MOU': 'MoU Completed Gram Panchayats',
-        'ACTIVE': 'Active VLEs (Cumulative)',
-        'INACTIVE': 'Inactive VLEs (Cumulative)',
+        'ALL': 'All Mapped Gram Panchayats', 'MOU': 'MoU Completed Gram Panchayats',
+        'ACTIVE': 'Active VLEs (Cumulative)', 'INACTIVE': 'Inactive VLEs (Cumulative)',
         '3M_INACTIVE': `Last 3 Month (${formatted3M}) Inactive VLEs`,
-        'DOWNLOADED': 'Notice Downloaded GPs',
-        'PAWATI': 'Seal & Sign Pawati Uploaded GPs'
+        'DOWNLOADED': 'Notice Downloaded GPs', 'PAWATI': 'Seal & Sign Pawati Uploaded GPs'
       };
 
       const subtitle = isBlockMode
@@ -1287,13 +1191,9 @@
         const last3 = r.monthly.slice(-3).map(m => `${m.month}: ${m.tx}`).join(' | ');
         return `
           <tr>
-            <td>${idx + 1}</td>
-            <td>${r.district}</td>
-            <td>${r.block}</td>
-            <td><strong>${r.gp}</strong> (${r.gpCode})</td>
-            <td>${r.vleName}</td>
-            <td style="font-family:monospace;">${r.cscId}</td>
-            <td>${r.mouStatus}</td>
+            <td>${idx + 1}</td><td>${r.district}</td><td>${r.block}</td>
+            <td><strong>${r.gp}</strong> (${r.gpCode})</td><td>${r.vleName}</td>
+            <td style="font-family:monospace;">${r.cscId}</td><td>${r.mouStatus}</td>
             <td style="color:${r.isCumActive ? '#047857' : '#b91c1c'};font-weight:bold;">${r.isCumActive ? 'ACTIVE' : 'INACTIVE'}</td>
             <td>${last3}</td>
             <td style="text-align:right;font-weight:bold;">${r.cumTx.toLocaleString('en-IN')}</td>
@@ -1302,30 +1202,21 @@
       }).join('');
 
       const newWin = window.open('', '_blank');
-      if (!newWin) {
-        alert("Pop-up blocked! Kripya browser me Pop-up allow karein.");
-        return;
-      }
+      if (!newWin) { alert("Pop-up blocked! Kripya browser me Pop-up allow karein."); return; }
 
       newWin.document.write(`
-        <!DOCTYPE html>
-        <html lang="hi">
-        <head>
-          <meta charset="UTF-8">
-          <title>${areaName} - ${titleMap[category]}</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; background: #f8fafc; color: #1e293b; }
-            .header { background: #1e3a8a; color: white; padding: 16px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
-            .btn { background: #10b981; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-left: 8px; }
-            .btn-print { background: #3b82f6; }
-            table { width: 100%; border-collapse: collapse; margin-top: 16px; background: white; font-size: 12px; }
-            th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; }
-            th { background: #e2e8f0; text-transform: uppercase; font-size: 11px; }
-            tr:nth-child(even) { background: #f8fafc; }
-            @media print { @page { margin: 8mm; } .no-print { display: none; } body { margin: 0; background: white; } }
-          </style>
-        </head>
-        <body>
+        <!DOCTYPE html><html lang="hi"><head><meta charset="UTF-8"><title>${areaName} - ${titleMap[category]}</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; background: #f8fafc; color: #1e293b; }
+          .header { background: #1e3a8a; color: white; padding: 16px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+          .btn { background: #10b981; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-left: 8px; }
+          .btn-print { background: #3b82f6; }
+          table { width: 100%; border-collapse: collapse; margin-top: 16px; background: white; font-size: 12px; }
+          th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; }
+          th { background: #e2e8f0; text-transform: uppercase; font-size: 11px; }
+          tr:nth-child(even) { background: #f8fafc; }
+          @media print { @page { margin: 8mm; } .no-print { display: none; } body { margin: 0; background: white; } }
+        </style></head><body>
           <div class="header">
             <div>
               <h2 style="margin:0;font-size:18px;">Atal Digital Suvidha Kendra — Detailed GP & VLE Report</h2>
@@ -1336,39 +1227,22 @@
               <button class="btn" onclick="exportCSV()">Download CSV</button>
             </div>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>District</th>
-                <th>Block</th>
-                <th>Gram Panchayat (Code)</th>
-                <th>VLE Name</th>
-                <th>CSC ID</th>
-                <th>MoU Status</th>
-                <th>Cumulative Status</th>
-                <th>Last 3 Months Tx</th>
-                <th style="text-align:right;">Cumulative Tx</th>
-                <th style="text-align:right;">Cumulative Amt</th>
-              </tr>
-            </thead>
-            <tbody>${tableRowsHtml}</tbody>
-          </table>
+          <table><thead><tr>
+            <th>#</th><th>District</th><th>Block</th><th>Gram Panchayat (Code)</th><th>VLE Name</th>
+            <th>CSC ID</th><th>MoU Status</th><th>Cumulative Status</th><th>Last 3 Months Tx</th>
+            <th style="text-align:right;">Cumulative Tx</th><th style="text-align:right;">Cumulative Amt</th>
+          </tr></thead><tbody>${tableRowsHtml}</tbody></table>
           <script>
             function exportCSV() {
               const rows = Array.from(document.querySelectorAll('table tr')).map(tr =>
                 Array.from(tr.children).map(td => '"' + td.innerText.replace(/"/g, '""') + '"').join(',')
               ).join('\\n');
               const blob = new Blob([rows], { type: 'text/csv;charset=utf-8;' });
-              const a = document.createElement('a');
-              a.href = URL.createObjectURL(blob);
-              a.download = '${areaName}_${category}_Details.csv';
-              a.click();
+              const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+              a.download = '${areaName}_${category}_Details.csv'; a.click();
             }
           <\/script>
-        </body>
-        </html>
-      `);
+        </body></html>`);
       newWin.document.close();
     }
 
@@ -1384,35 +1258,30 @@
       document.getElementById('geoColName').innerHTML = isBlockMode ? 'Block Name &updownarrow;' : 'District Name &updownarrow;';
 
       const map = {};
-      filteredData.forEach(r => {
+      for (let i = 0; i < filteredData.length; i++) {
+        const r = filteredData[i];
         const key = isBlockMode ? r.block : r.district;
-        if (!key) return;
+        if (!key) continue;
         if (!map[key]) {
           map[key] = { name: key, gps: 0, mou: 0, active: 0, inactive: 0, inact3m: 0, downloaded: 0, pawati: 0, tx: 0, amt: 0 };
         }
         const m = getMetricsForRow(r, selectedMonth);
         map[key].gps++;
         if (isMouDone(r)) map[key].mou++;
-        if (r.isCumActive) map[key].active++;
-        else map[key].inactive++;
+        if (r.isCumActive) map[key].active++; else map[key].inactive++;
         if (r.inactive3M) map[key].inact3m++;
         if (r.noticeDownloaded) map[key].downloaded++;
         if (r.pawatiUploaded) map[key].pawati++;
         map[key].tx += m.tx;
         map[key].amt += m.amt;
-      });
+      }
 
       const rows = Object.values(map)
-        .map(item => ({
-          ...item,
-          actPct: item.gps ? (item.active / item.gps) * 100 : 0
-        }))
+        .map(item => ({ ...item, actPct: item.gps ? (item.active / item.gps) * 100 : 0 }))
         .filter(item => item.name.toLowerCase().includes(search))
         .sort((a, b) => {
           const { key, dir } = geoSortState;
-          if (key === 'name') {
-            return dir === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
-          }
+          if (key === 'name') return dir === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
           return dir === 'asc' ? a[key] - b[key] : b[key] - a[key];
         });
 
@@ -1421,58 +1290,27 @@
         return `
           <tr class="hover:bg-blue-50/40">
             <td class="p-2.5 font-semibold text-slate-500">${idx + 1}</td>
-            <td class="p-2.5">
-              <button onclick="openDrilldownNewTab('${safeName}', 'ALL', ${isBlockMode})" class="font-bold text-indigo-800 hover:underline text-left">
-                ${item.name}
-              </button>
-            </td>
-            <td class="p-2.5 text-right">
-              <button onclick="openDrilldownNewTab('${safeName}', 'ALL', ${isBlockMode})" class="font-semibold text-slate-800 hover:underline">
-                ${item.gps.toLocaleString('en-IN')}
-              </button>
-            </td>
-            <td class="p-2.5 text-right">
-              <button onclick="openDrilldownNewTab('${safeName}', 'MOU', ${isBlockMode})" class="font-semibold text-indigo-700 hover:underline">
-                ${item.mou.toLocaleString('en-IN')}
-              </button>
-            </td>
-            <td class="p-2.5 text-right">
-              <button onclick="openDrilldownNewTab('${safeName}', 'ACTIVE', ${isBlockMode})" class="font-bold text-emerald-700 hover:underline">
-                ${item.active.toLocaleString('en-IN')}
-              </button>
-            </td>
-            <td class="p-2.5 text-right">
-              <button onclick="openDrilldownNewTab('${safeName}', 'INACTIVE', ${isBlockMode})" class="font-bold text-amber-700 hover:underline">
-                ${item.inactive.toLocaleString('en-IN')}
-              </button>
-            </td>
+            <td class="p-2.5"><button onclick="openDrilldownNewTab('${safeName}', 'ALL', ${isBlockMode})" class="font-bold text-indigo-800 hover:underline text-left">${item.name}</button></td>
+            <td class="p-2.5 text-right"><button onclick="openDrilldownNewTab('${safeName}', 'ALL', ${isBlockMode})" class="font-semibold text-slate-800 hover:underline">${item.gps.toLocaleString('en-IN')}</button></td>
+            <td class="p-2.5 text-right"><button onclick="openDrilldownNewTab('${safeName}', 'MOU', ${isBlockMode})" class="font-semibold text-indigo-700 hover:underline">${item.mou.toLocaleString('en-IN')}</button></td>
+            <td class="p-2.5 text-right"><button onclick="openDrilldownNewTab('${safeName}', 'ACTIVE', ${isBlockMode})" class="font-bold text-emerald-700 hover:underline">${item.active.toLocaleString('en-IN')}</button></td>
+            <td class="p-2.5 text-right"><button onclick="openDrilldownNewTab('${safeName}', 'INACTIVE', ${isBlockMode})" class="font-bold text-amber-700 hover:underline">${item.inactive.toLocaleString('en-IN')}</button></td>
             <td class="p-2.5 text-right font-semibold">${item.actPct.toFixed(1)}%</td>
-            <td class="p-2.5 text-right">
-              <button onclick="openDrilldownNewTab('${safeName}', '3M_INACTIVE', ${isBlockMode})" class="font-bold text-rose-600 hover:underline">
-                ${item.inact3m.toLocaleString('en-IN')}
-              </button>
-            </td>
-            <td class="p-2.5 text-right">
-              <button onclick="openDrilldownNewTab('${safeName}', 'DOWNLOADED', ${isBlockMode})" class="font-bold text-blue-700 hover:underline">
-                ${item.downloaded.toLocaleString('en-IN')}
-              </button>
-            </td>
-            <td class="p-2.5 text-right">
-              <button onclick="openDrilldownNewTab('${safeName}', 'PAWATI', ${isBlockMode})" class="font-bold text-emerald-700 hover:underline">
-                ${item.pawati.toLocaleString('en-IN')}
-              </button>
-            </td>
+            <td class="p-2.5 text-right"><button onclick="openDrilldownNewTab('${safeName}', '3M_INACTIVE', ${isBlockMode})" class="font-bold text-rose-600 hover:underline">${item.inact3m.toLocaleString('en-IN')}</button></td>
+            <td class="p-2.5 text-right"><button onclick="openDrilldownNewTab('${safeName}', 'DOWNLOADED', ${isBlockMode})" class="font-bold text-blue-700 hover:underline">${item.downloaded.toLocaleString('en-IN')}</button></td>
+            <td class="p-2.5 text-right"><button onclick="openDrilldownNewTab('${safeName}', 'PAWATI', ${isBlockMode})" class="font-bold text-emerald-700 hover:underline">${item.pawati.toLocaleString('en-IN')}</button></td>
             <td class="p-2.5 text-right font-bold text-slate-900">${item.tx.toLocaleString('en-IN')}</td>
             <td class="p-2.5 text-right font-semibold">₹${Math.round(item.amt).toLocaleString('en-IN')}</td>
           </tr>`;
       }).join('');
     }
 
+    // Fast Sarpanch Table without JSON.stringify bottleneck
     function renderSarpanchTable() {
       const mode = document.getElementById('sarpanchFilterType').value;
       const q = document.getElementById('gpSearchInput').value.toLowerCase();
 
-      const list = filteredData.filter(r => {
+      sarpanchCurrentList = filteredData.filter(r => {
         if (mode === '3M_INACTIVE' && !r.inactive3M) return false;
         if (mode === 'NOTICE_DOWNLOADED' && !r.noticeDownloaded) return false;
         if (mode === 'PAWATI_UPLOADED' && !r.pawatiUploaded) return false;
@@ -1483,9 +1321,13 @@
         return true;
       });
 
-      document.getElementById('sarpanchResultCount').textContent = `Showing ${list.length.toLocaleString('en-IN')} Gram Panchayats`;
+      document.getElementById('sarpanchResultCount').textContent = `Showing ${sarpanchCurrentList.length.toLocaleString('en-IN')} Gram Panchayats`;
 
-      document.getElementById('sarpanchTableBody').innerHTML = list.slice(0, 300).map(r => {
+      const slice = sarpanchCurrentList.slice(0, 300);
+      const htmlArr = new Array(slice.length);
+
+      for (let i = 0; i < slice.length; i++) {
+        const r = slice[i];
         const last3 = r.monthly.slice(-3);
         const badges = last3.map(m => `
           <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${m.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
@@ -1501,37 +1343,27 @@
         const pawatiBtn = r.pawatiUploaded
           ? `<div class="flex flex-col items-center gap-1">
                <a href="${r.pawatiUrl}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-[11px] font-bold">View Pawati</a>
-               <button onclick='openPawatiModal(${JSON.stringify(r).replace(/'/g, "&#39;")})' class="text-[10px] text-indigo-600 underline">Re-upload</button>
+               <button onclick="openPawatiByIdx(${i})" class="text-[10px] text-indigo-600 underline">Re-upload</button>
              </div>`
-          : `<button onclick='openPawatiModal(${JSON.stringify(r).replace(/'/g, "&#39;")})' class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg text-[11px] font-bold shadow-sm">
-               Upload Pawati
-             </button>`;
+          : `<button onclick="openPawatiByIdx(${i})" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg text-[11px] font-bold shadow-sm">Upload Pawati</button>`;
 
-        return `
+        htmlArr[i] = `
           <tr class="hover:bg-rose-50/40">
-            <td class="p-2.5">
-              <div class="font-bold text-slate-800">${r.district}</div>
-              <div class="text-slate-500">${r.block}</div>
-            </td>
-            <td class="p-2.5">
-              <div class="font-bold text-indigo-900">${r.gp}</div>
-              <div class="text-[11px] text-slate-500">GP Code: ${r.gpCode}</div>
-            </td>
-            <td class="p-2.5">
-              <div class="font-semibold text-slate-800">${r.vleName}</div>
-              <div class="text-[11px] font-mono text-slate-500">CSC ID: ${r.cscId}</div>
-            </td>
+            <td class="p-2.5"><div class="font-bold text-slate-800">${r.district}</div><div class="text-slate-500">${r.block}</div></td>
+            <td class="p-2.5"><div class="font-bold text-indigo-900">${r.gp}</div><div class="text-[11px] text-slate-500">GP Code: ${r.gpCode}</div></td>
+            <td class="p-2.5"><div class="font-semibold text-slate-800">${r.vleName}</div><div class="text-[11px] font-mono text-slate-500">CSC ID: ${r.cscId}</div></td>
             <td class="p-2.5 space-x-1">${badges}</td>
             <td class="p-2.5">${statusBadge}</td>
-            <td class="p-2.5 text-center">
-              <button onclick='openNotice(${JSON.stringify(r).replace(/'/g, "&#39;")})' class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold shadow-sm">
-                Generate Notice PDF
-              </button>
-            </td>
+            <td class="p-2.5 text-center"><button onclick="openNoticeByIdx(${i})" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold shadow-sm">Generate Notice PDF</button></td>
             <td class="p-2.5 text-center">${pawatiBtn}</td>
           </tr>`;
-      }).join('');
+      }
+
+      document.getElementById('sarpanchTableBody').innerHTML = htmlArr.join('');
     }
+
+    function openNoticeByIdx(idx) { if (sarpanchCurrentList[idx]) openNotice(sarpanchCurrentList[idx]); }
+    function openPawatiByIdx(idx) { if (sarpanchCurrentList[idx]) openPawatiModal(sarpanchCurrentList[idx]); }
 
     function formatDateDDMMYYYY(dateObj) {
       const dd = String(dateObj.getDate()).padStart(2, '0');
@@ -1552,33 +1384,26 @@
 
     function openNotice(r) {
       activeRecord = r;
-      const todayISO = new Date().toISOString().slice(0, 10);
-      document.getElementById('customNoticeDate').value = todayISO;
+      document.getElementById('customNoticeDate').value = new Date().toISOString().slice(0, 10);
 
       document.getElementById('docGpHeader').textContent = r.gp || '................';
       document.getElementById('docBlockHeader').textContent = r.block || '................';
       document.getElementById('docDistrictHeader').textContent = r.district || '................';
-
       document.getElementById('docLetterNo').textContent = `ADSK/${r.gpCode || '....'}/ग्रा.पं./2026`;
       document.getElementById('docVleName').textContent = r.vleName || '................';
       document.getElementById('docCscId').textContent = r.cscId || '................';
       document.getElementById('docGpAddress').textContent = r.gp || '................';
       document.getElementById('docBlockAddress').textContent = r.block || '................';
-
       document.getElementById('docGpBody').textContent = r.gp || '................';
-
       document.getElementById('docSignGp').textContent = r.gp || '................';
       document.getElementById('docSignBlock').textContent = r.block || '................';
       document.getElementById('docSignDistrict').textContent = r.district || '................';
-
       document.getElementById('docCopyJanpad').textContent = r.block || '................';
       document.getElementById('docCopyDistrict').textContent = r.district || '................';
       document.getElementById('docCopySachivGp').textContent = r.gp || '................';
-
       document.getElementById('docReceiptVle').textContent = r.vleName || '................';
 
       refreshNoticeDates();
-
       document.getElementById('noticeModal').classList.remove('hidden');
       document.getElementById('noticeModal').classList.add('flex');
     }
@@ -1586,36 +1411,26 @@
     function downloadAndLogNotice() {
       if (activeRecord) {
         fetch(SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain' },
+          method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify({
-            action: 'LOG_DOWNLOAD',
-            district: activeRecord.district,
-            block: activeRecord.block,
-            gp: activeRecord.gp,
-            gpCode: activeRecord.gpCode,
-            cscId: activeRecord.cscId,
-            vleName: activeRecord.vleName
+            action: 'LOG_DOWNLOAD', district: activeRecord.district, block: activeRecord.block,
+            gp: activeRecord.gp, gpCode: activeRecord.gpCode, cscId: activeRecord.cscId, vleName: activeRecord.vleName
           })
         }).catch(() => {});
 
         activeRecord.noticeDownloaded = true;
         activeRecord.downloadTime = new Date().toLocaleString('en-IN');
         updateKPIs(document.getElementById('filterMonth').value);
-        renderGeoTable();
+        dirtyTabs.geo = true;
         renderSarpanchTable();
       }
 
-      // 2 & 3) Zero-margin A4 Portrait Print suppresses browser header title & footer URL
       document.getElementById('dynamicPageStyle').innerHTML = `@page { size: A4 portrait; margin: 0; }`;
       const printWrapper = document.getElementById('dedicatedPrintWrapper');
       printWrapper.className = 'notice-print';
       printWrapper.innerHTML = document.getElementById('noticeSheetContent').innerHTML;
 
-      setTimeout(() => {
-        window.print();
-      }, 150);
+      setTimeout(() => window.print(), 100);
     }
 
     function closeModal() {
@@ -1631,8 +1446,7 @@
       document.getElementById('upCscId').textContent = r.cscId;
       document.getElementById('pawatiFileInput').value = '';
       document.getElementById('pawatiRemarks').value = '';
-      const msg = document.getElementById('uploadStatusMsg');
-      msg.classList.add('hidden');
+      document.getElementById('uploadStatusMsg').classList.add('hidden');
       document.getElementById('pawatiModal').classList.remove('hidden');
       document.getElementById('pawatiModal').classList.add('flex');
     }
@@ -1660,8 +1474,7 @@
         return;
       }
 
-      btn.disabled = true;
-      btn.textContent = "Uploading...";
+      btn.disabled = true; btn.textContent = "Uploading...";
       msg.textContent = "Pawati upload ho rahi hai, kripya pratiksha karein...";
       msg.className = "text-xs font-semibold p-2 rounded-lg bg-blue-100 text-blue-800 block";
 
@@ -1672,76 +1485,55 @@
 
         try {
           await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain' },
+            method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({
-              action: 'UPLOAD_PAWATI',
-              district: activeRecord.district,
-              block: activeRecord.block,
-              gp: activeRecord.gp,
-              gpCode: activeRecord.gpCode,
-              cscId: activeRecord.cscId,
-              vleName: activeRecord.vleName,
-              remarks: document.getElementById('pawatiRemarks').value.trim(),
-              fileBase64: base64Data,
-              mimeType: file.type,
-              fileExt: ext
+              action: 'UPLOAD_PAWATI', district: activeRecord.district, block: activeRecord.block,
+              gp: activeRecord.gp, gpCode: activeRecord.gpCode, cscId: activeRecord.cscId,
+              vleName: activeRecord.vleName, remarks: document.getElementById('pawatiRemarks').value.trim(),
+              fileBase64: base64Data, mimeType: file.type, fileExt: ext
             })
           });
 
           msg.textContent = "✓ Pawati safaltapurvak upload ho gayi!";
           msg.className = "text-xs font-semibold p-2 rounded-lg bg-emerald-100 text-emerald-800 block";
 
-          setTimeout(() => {
-            closePawatiModal();
-            syncDashboardData(false);
-          }, 1200);
-
+          setTimeout(() => { closePawatiModal(); syncDashboardData(true); }, 1000);
         } catch (err) {
           msg.textContent = "Upload error: " + err.message;
           msg.className = "text-xs font-semibold p-2 rounded-lg bg-rose-100 text-rose-800 block";
         } finally {
-          btn.disabled = false;
-          btn.textContent = "Upload Pawati";
+          btn.disabled = false; btn.textContent = "Upload Pawati";
         }
       };
       reader.readAsDataURL(file);
     }
 
     function switchTab(tab) {
+      activeTab = tab;
       ['overview', 'geo', 'sarpanch'].forEach(t => {
         document.getElementById(`view-${t}`).classList.toggle('hidden', t !== tab);
         const btn = document.getElementById(`tab-${t}`);
-        if (t === tab) {
-          btn.className = 'tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg bg-slate-50 text-indigo-900 flex items-center gap-1.5 whitespace-nowrap';
-        } else {
-          btn.className = 'tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg text-blue-100 hover:bg-white/10 flex items-center gap-1.5 whitespace-nowrap';
-        }
+        btn.className = t === tab
+          ? 'tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg bg-slate-50 text-indigo-900 flex items-center gap-1.5 whitespace-nowrap'
+          : 'tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg text-blue-100 hover:bg-white/10 flex items-center gap-1.5 whitespace-nowrap';
       });
+      renderActiveTabContent();
     }
 
     function exportFilteredExcel() {
       const rows = filteredData.map(r => {
         const last3 = r.monthly.slice(-3);
         return {
-          'District': r.district,
-          'Block': r.block,
-          'GP Name': r.gp,
-          'GP Code': r.gpCode,
-          'CSC ID': r.cscId,
-          'VLE Name': r.vleName,
-          'Service Type': r.serviceType,
-          'MoU Status': r.mouStatus,
-          'Phase': r.phase,
+          'District': r.district, 'Block': r.block, 'GP Name': r.gp, 'GP Code': r.gpCode,
+          'CSC ID': r.cscId, 'VLE Name': r.vleName, 'Service Type': r.serviceType,
+          'MoU Status': r.mouStatus, 'Phase': r.phase,
           'Cumulative Status': r.isCumActive ? 'ACTIVE' : 'INACTIVE',
           'Last 3-Month Continuous Inactive': r.inactive3M ? 'YES (ALERT)' : 'NO',
           'Notice Downloaded': r.noticeDownloaded ? 'YES' : 'NO',
           'Pawati Uploaded': r.pawatiUploaded ? 'YES' : 'NO',
           'Pawati Drive Link': r.pawatiUrl || '',
           'Last 3 Months Tx': last3.map(m => `${m.month}:${m.tx}`).join(' | '),
-          'Cumulative Tx': r.cumTx,
-          'Cumulative Amount': r.cumAmt
+          'Cumulative Tx': r.cumTx, 'Cumulative Amount': r.cumAmt
         };
       });
       const ws = XLSX.utils.json_to_sheet(rows);
@@ -1751,19 +1543,15 @@
     }
 
     (function bootPortal() {
-      try {
-        const cachedStr = localStorage.getItem(LOCAL_CACHE_KEY);
-        if (cachedStr) {
-          const cachedJson = JSON.parse(cachedStr);
+      loadFromIDB((cachedJson) => {
+        if (cachedJson) {
           applyJsonPayload(cachedJson, true);
           document.getElementById('liveBadgeText').textContent = `Cached: ${rawData.length.toLocaleString('en-IN')} GPs (Auto-Sync 5m)`;
         }
-      } catch (e) {}
-
-      syncDashboardData(false);
-      setInterval(() => {
         syncDashboardData(false);
-      }, AUTO_SYNC_MS);
+      });
+
+      setInterval(() => syncDashboardData(false), AUTO_SYNC_MS);
     })();
   </script>
 </body>
