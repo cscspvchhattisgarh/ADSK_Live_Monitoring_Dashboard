@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADSK Project Monitoring & Sarpanch Notice Portal - CSC Chhattisgarh</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #printNoticeArea, #printNoticeArea * { visibility: visible; }
+      #printNoticeArea {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 12mm 16mm;
+        background: white !important;
+        font-family: 'Noto Sans Devanagari', sans-serif !important;
+        color: #000 !important;
+      }
+      @page { size: A4 portrait; margin: 10mm; }
+    }
+    .hindi-doc { font-family: 'Noto Sans Devanagari', sans-serif; }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .sync-shimmer {
+      background: linear-gradient(90deg, #10b981 25%, #34d399 50%, #10b981 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite linear;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans">
+
+  <!-- Top Header -->
+  <header class="bg-gradient-to-r from-indigo-900 via-blue-900 to-slate-900 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="bg-amber-400 text-slate-900 text-xs font-extrabold px-2.5 py-0.5 rounded uppercase">CSC SPV Chhattisgarh</span>
+          <span id="liveBadge" class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-xs px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
+            <span id="liveDot" class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+            <span id="liveBadgeText">Connecting to DETAILS SHEET...</span>
+          </span>
+        </div>
+        <h1 class="text-xl md:text-2xl font-bold mt-1">Atal Digital Suvidha Kendra (ADSK) — Monitoring & Sarpanch Portal</h1>
+        <p class="text-xs text-blue-200">Source: <span class="font-semibold text-white">DETAILS SHEET</span> | CORS-Free Fast Sync | Official Sarpanch Notice PDF Generator</p>
+      </div>
+
+      <!-- Auto-Sync Controls & Export -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="bg-white/10 border border-white/15 rounded-lg px-3 py-1.5 flex items-center gap-2 text-xs">
+          <label class="flex items-center gap-1.5 cursor-pointer select-none">
+            <input type="checkbox" id="autoSyncToggle" checked onchange="toggleAutoSync()" class="accent-emerald-400 w-3.5 h-3.5">
+            <span class="font-semibold text-emerald-200">Auto-Sync</span>
+          </label>
+          <span class="text-white/40">|</span>
+          <span id="syncCountdown" class="font-mono text-amber-300">02:00</span>
+          <span class="text-white/40">|</span>
+          <span id="lastSyncTime" class="text-blue-200">Last: --:--</span>
+        </div>
+
+        <button onclick="syncDashboardData(true)" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow transition flex items-center gap-1.5">
+          <svg id="syncIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Sync Now
+        </button>
+
+        <button onclick="exportFilteredExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg shadow transition">
+          Export Excel
+        </button>
+      </div>
+    </div>
+
+    <!-- Dynamic Synchronization Progress Bar -->
+    <div class="bg-slate-950/70 border-t border-white/10 px-4 py-1.5">
+      <div class="max-w-7xl mx-auto flex items-center gap-3">
+        <span id="syncStatusLabel" class="text-[11px] font-semibold text-emerald-300 whitespace-nowrap min-w-[230px]">
+          Initializing DETAILS SHEET sync...
+        </span>
+        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden border border-white/10">
+          <div id="syncProgressBar" class="sync-shimmer h-full rounded-full transition-all duration-300" style="width: 15%"></div>
+        </div>
+        <span id="syncPercentText" class="text-[11px] font-mono font-bold text-white min-w-[36px] text-right">15%</span>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="max-w-7xl mx-auto px-4 flex gap-1 border-t border-white/10 pt-2">
+      <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg bg-slate-50 text-indigo-900">
+        1. Executive & Category Analysis
+      </button>
+      <button onclick="switchTab('geo')" id="tab-geo" class="tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg text-blue-100 hover:bg-white/10">
+        2. District & Block Comparison
+      </button>
+      <button onclick="switchTab('sarpanch')" id="tab-sarpanch" class="tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg text-blue-100 hover:bg-white/10 flex items-center gap-1.5">
+        3. Sarpanch Monitoring & Notice PDF
+        <span id="inactiveTabCount" class="bg-rose-500 text-white text-[11px] px-1.5 py-0.2 rounded-full">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Global Filters -->
+  <section class="max-w-7xl mx-auto px-4 mt-4">
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3">
+      <div>
+        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">District</label>
+        <select id="filterDistrict" onchange="onDistrictChange()" class="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-sm bg-white">
+          <option value="ALL">All Districts (State)</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Block</label>
+        <select id="filterBlock" onchange="applyFilters()" class="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-sm bg-white">
+          <option value="ALL">All Blocks</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Period / Month</label>
+        <select id="filterMonth" onchange="applyFilters()" class="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-sm bg-white font-semibold text-indigo-800">
+          <option value="CUMULATIVE">Cumulative (All Months)</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Phase</label>
+        <select id="filterPhase" onchange="applyFilters()" class="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-sm bg-white">
+          <option value="ALL">All Phases</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">MoU Status</label>
+        <select id="filterMou" onchange="applyFilters()" class="w-full border border-slate-300 rounded-lg px-2.5 py-1.5 text-sm bg-white">
+          <option value="ALL">All MoU Status</option>
+        </select>
+      </div>
+      <div class="flex items-end">
+        <button onclick="resetFilters()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm py-1.5 rounded-lg border border-slate-300 transition">
+          Reset Filters
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 py-5">
+
+    <!-- KPI Summary Row -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs font-semibold text-slate-500 uppercase">Total Mapped GPs</p>
+        <h2 id="kpiTotalGPs" class="text-2xl font-extrabold text-slate-900 mt-1">0</h2>
+        <p class="text-[11px] text-slate-400 mt-1">VLEs Registered</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs font-semibold text-slate-500 uppercase">MoU Signed</p>
+        <h2 id="kpiMouDone" class="text-2xl font-extrabold text-indigo-700 mt-1">0</h2>
+        <p id="kpiMouPct" class="text-[11px] text-indigo-500 font-semibold mt-1">0% Completed</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs font-semibold text-slate-500 uppercase">Active VLEs</p>
+        <h2 id="kpiActive" class="text-2xl font-extrabold text-emerald-600 mt-1">0</h2>
+        <p id="kpiActivePct" class="text-[11px] text-emerald-600 font-semibold mt-1">0% Active Rate</p>
+      </div>
+      <div class="bg-rose-50 p-4 rounded-xl border border-rose-200 shadow-sm cursor-pointer" onclick="switchTab('sarpanch')">
+        <p class="text-xs font-bold text-rose-700 uppercase">3M Inactive Alert</p>
+        <h2 id="kpiInactive3M" class="text-2xl font-extrabold text-rose-600 mt-1">0</h2>
+        <p class="text-[11px] text-rose-600 font-semibold mt-1">Generate Notice PDF →</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs font-semibold text-slate-500 uppercase">Total Transactions</p>
+        <h2 id="kpiTx" class="text-2xl font-extrabold text-blue-700 mt-1">0</h2>
+        <p id="kpiPeriodLabel1" class="text-[11px] text-slate-400 mt-1">Cumulative</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <p class="text-xs font-semibold text-slate-500 uppercase">Total Amount</p>
+        <h2 id="kpiAmt" class="text-xl font-extrabold text-amber-600 mt-1">₹0</h2>
+        <p id="kpiAmtCr" class="text-[11px] text-slate-500 font-semibold mt-1">₹0.00 Cr</p>
+      </div>
+    </div>
+
+    <!-- TAB 1: EXECUTIVE & CATEGORY ANALYSIS -->
+    <div id="view-overview" class="space-y-6">
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="mb-3">
+          <h3 class="text-base font-bold text-slate-800">Month-on-Month Transaction & Active VLE Trend</h3>
+          <p class="text-xs text-slate-500">Automatically updates when 3 new monthly columns are added in DETAILS SHEET</p>
+        </div>
+        <div class="h-72">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <h4 class="text-sm font-bold text-slate-700 border-b pb-2 mb-3">VLE Gender Distribution</h4>
+          <div id="breakdownGender" class="space-y-2.5 text-xs"></div>
+        </div>
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <h4 class="text-sm font-bold text-slate-700 border-b pb-2 mb-3">Phase & Type of Service Breakdown</h4>
+          <div id="breakdownServicePhase" class="space-y-2.5 text-xs"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: DISTRICT & BLOCK WISE ANALYSIS -->
+    <div id="view-geo" class="hidden space-y-4">
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+          <div>
+            <h3 id="geoTableTitle" class="text-base font-bold text-slate-800">District-Wise Performance Summary</h3>
+            <p class="text-xs text-slate-500">Select a District in top filter to drill down into Block-wise performance</p>
+          </div>
+          <input type="text" id="geoSearch" onkeyup="renderGeoTable()" placeholder="Search District or Block..." class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm w-full sm:w-64" />
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 border-b border-slate-300 uppercase">
+                <th class="p-2.5">Rank</th>
+                <th class="p-2.5" id="geoColName">District Name</th>
+                <th class="p-2.5">Code</th>
+                <th class="p-2.5 text-right">Total GPs</th>
+                <th class="p-2.5 text-right">MoU Signed</th>
+                <th class="p-2.5 text-right">Active VLEs</th>
+                <th class="p-2.5 text-right">Active %</th>
+                <th class="p-2.5 text-right text-rose-700">3M Inactive</th>
+                <th class="p-2.5 text-right">Transactions</th>
+                <th class="p-2.5 text-right">Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="geoTableBody" class="divide-y divide-slate-200"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: SARPANCH MONITORING & AUTO PDF NOTICE GENERATOR -->
+    <div id="view-sarpanch" class="hidden space-y-5">
+      <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <h3 class="text-base font-bold text-amber-900">ग्राम पंचायत / सरपंच निगरानी एवं MoU समाप्ति नोटिस जनरेटर</h3>
+          <p class="text-xs text-amber-800 mt-0.5">
+            पिछले <strong>3 माह (<span id="last3MonthsNames">-</span>)</strong> से लगातार निष्क्रिय (Inactive) VLEs की सूची। <strong>"Generate Notice PDF"</strong> पर क्लिक करते ही सभी विवरण ऑटो-फिल होकर ऑफिशियल लेटरहेड PDF तैयार हो जाएगा।
+          </p>
+        </div>
+        <div class="flex gap-2">
+          <select id="sarpanchFilterType" onchange="renderSarpanchTable()" class="border border-amber-300 bg-white rounded-lg px-3 py-1.5 text-xs font-semibold">
+            <option value="3M_INACTIVE">Only 3-Month Continuous Inactive</option>
+            <option value="LATEST_INACTIVE">Latest Month Inactive</option>
+            <option value="ALL_GP">All Gram Panchayats (Sarpanch View)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <input type="text" id="gpSearchInput" onkeyup="renderSarpanchTable()" placeholder="Search by GP Name, GP Code, CSC ID, or VLE Name..." class="border border-slate-300 rounded-lg px-3 py-2 text-sm w-full sm:w-96" />
+          <span id="sarpanchResultCount" class="text-xs font-bold text-slate-600">Showing 0 records</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-rose-50 text-rose-950 border-b border-rose-200 uppercase">
+                <th class="p-2.5">District / Block</th>
+                <th class="p-2.5">Gram Panchayat (Code)</th>
+                <th class="p-2.5">VLE Name & CSC ID</th>
+                <th class="p-2.5">MoU / Phase</th>
+                <th class="p-2.5">Last 3 Months Status</th>
+                <th class="p-2.5 text-right">Cumulative Tx</th>
+                <th class="p-2.5 text-center">Official Notice</th>
+              </tr>
+            </thead>
+            <tbody id="sarpanchTableBody" class="divide-y divide-slate-200"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Official Notice PDF Preview & Print Modal -->
+  <div id="noticeModal" class="fixed inset-0 bg-slate-900/70 hidden items-center justify-center p-3 z-50 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-4xl w-full shadow-2xl border border-slate-300 my-6 overflow-hidden">
+      <div class="bg-slate-800 text-white px-5 py-3 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-bold">ऑफिशियल ग्राम पंचायत नोटिस प्रीव्यू (A4 Aligned PDF)</span>
+          <label class="text-xs flex items-center gap-1.5 bg-slate-700 px-2.5 py-1 rounded">
+            नोटिस दिनांक:
+            <input type="date" id="customNoticeDate" onchange="refreshNoticeDates()" class="bg-slate-900 text-white text-xs px-1.5 py-0.5 rounded border border-slate-600">
+          </label>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="window.print()" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold px-4 py-2 rounded-lg shadow">
+            Download / Print PDF
+          </button>
+          <button onclick="closeModal()" class="bg-slate-600 hover:bg-slate-500 text-white text-xs font-semibold px-3 py-2 rounded-lg">
+            Close
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6 md:p-10 bg-slate-100 overflow-y-auto max-h-[82vh]">
+        <div id="printNoticeArea" class="hindi-doc bg-white mx-auto max-w-[210mm] p-8 md:p-12 shadow-md border border-slate-300 text-[14.5px] leading-[1.75] text-black">
+          
+          <div class="text-center border-b-2 border-black pb-2.5 mb-3">
+            <h2 class="text-xl font-bold tracking-wide">कार्यालय ग्राम पंचायत <span id="docGpHeader" class="underline decoration-dotted"></span></h2>
+            <p class="text-[15px] font-semibold mt-0.5">
+              विकासखंड: <span id="docBlockHeader" class="font-bold"></span>, &nbsp;&nbsp;
+              जिला: <span id="docDistrictHeader" class="font-bold"></span> (छ.ग.)
+            </p>
+          </div>
+
+          <div class="flex justify-between items-center text-[14px] font-semibold mb-5">
+            <div>पत्र क्रमांक: <span id="docLetterNo">......../ग्रा.पं./2026</span></div>
+            <div>दिनांक: <span id="docNoticeDate" class="font-bold"></span></div>
+          </div>
+
+          <div class="mb-4 text-[14.5px] leading-[1.65]">
+            <p class="font-bold">प्रति,</p>
+            <div class="pl-8">
+              <p>श्री/श्रीमती <span id="docVleName" class="font-bold"></span></p>
+              <p>ग्राम स्तरीय उद्यमी (VLE)</p>
+              <p>CSC ID: <span id="docCscId" class="font-bold font-mono"></span></p>
+              <p>पता: ग्राम पंचायत - <span id="docGpAddress" class="font-semibold"></span>, विकासखंड - <span id="docBlockAddress"></span></p>
+            </div>
+          </div>
+
+          <div class="mb-4 space-y-1.5 text-[14.5px]">
+            <p class="font-bold">
+              विषय: अटल पंचायत डिजिटल सुविधा केंद्र के संचालन हेतु निष्पादित समझौता ज्ञापन (MoU) को समाप्त करने बाबत।
+            </p>
+            <p>
+              <span class="font-bold">संदर्भ:</span> ग्राम पंचायत एवं आपके मध्य निष्पादित समझौता ज्ञापन (MoU)।
+            </p>
+          </div>
+
+          <div class="space-y-3 text-justify text-[14.5px]">
+            <p class="font-semibold">महोदय/महोदया,</p>
+            <p class="indent-10">
+              उपरोक्त विषयांतर्गत लेख है कि ग्राम पंचायत <span id="docGpBody" class="font-bold"></span> में ग्रामीणों को बैंकिंग एवं विभिन्न डिजिटल शासकीय सेवाएँ उपलब्ध कराने हेतु आपके साथ 'अटल पंचायत डिजिटल सुविधा केंद्र' के संचालन हेतु समझौता ज्ञापन (MoU) निष्पादित किया गया था।
+            </p>
+            <p class="indent-10">
+              उक्त समझौता ज्ञापन के पालन में यह पाया गया है कि आपके द्वारा ग्राम पंचायत कार्यालय में CSC की DigiPay एवं अन्य बैंकिंग सेवाएँ (नकद आहरण, जमा, फंड ट्रांसफर आदि) नियमित रूप से प्रदान नहीं की जा रही हैं, जिससे ग्रामीणों को भारी असुविधा का सामना करना पड़ रहा है। आपका यह कृत्य निष्पादित समझौता ज्ञापन (MoU) की शर्तों (विशेषकर कंडिका 2, 4, 10 एवं 11) का स्पष्ट उल्लंघन एवं निर्धारित दायित्वों के प्रति गंभीर लापरवाही है।
+            </p>
+            <p class="indent-10">
+              अतः समझौता ज्ञापन (MoU) की कंडिका 10 (दंड और अनुशासनात्मक कार्रवाई) एवं कंडिका 11 (शर्तें और उल्लंघन) में निहित प्रावधानों के तहत आपको आगामी 30 दिवस दिनांक <span id="docDeadlineDate" class="font-bold underline"></span> तक उक्त बैंकिंग एवं नकद आहरण सेवाएं प्रदान करने हेतु निर्देशित किया जाता है। उक्त सेवाएं प्रदान न कर पाने की स्थिति में ग्राम पंचायत द्वारा आपके साथ निष्पादित उक्त समझौता ज्ञापन (MoU) को समाप्त किया जाएगा।
+            </p>
+            <p class="indent-10">
+              कृपया आदेश का तत्काल पालन सुनिश्चित करें।
+            </p>
+          </div>
+
+          <div class="mt-10 flex justify-end">
+            <div class="text-center min-w-[240px] leading-[1.6]">
+              <p class="font-bold mb-10">भवदीय,</p>
+              <p class="font-semibold">(हस्ताक्षर एवं सील)</p>
+              <p class="font-bold text-[15px]">सरपंच</p>
+              <p>ग्राम पंचायत: <span id="docSignGp" class="font-bold"></span></p>
+              <p>विकासखंड: <span id="docSignBlock" class="font-semibold"></span> &nbsp;&nbsp; जिला: <span id="docSignDistrict" class="font-semibold"></span></p>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-3 border-t border-slate-400 text-[13.5px] leading-[1.6]">
+            <p class="font-bold mb-1">प्रतिलिपि (सूचनार्थ एवं आवश्यक कार्यवाही हेतु):</p>
+            <ol class="list-decimal pl-6 space-y-0.5">
+              <li>मुख्य कार्यपालन अधिकारी (CEO), जनपद पंचायत <span id="docCopyJanpad" class="font-semibold"></span>।</li>
+              <li>सीएससी जिला प्रबंधक (District Manager), जिला <span id="docCopyDistrict" class="font-semibold"></span> आवश्यक कार्यवाही हेतु।</li>
+              <li>सचिव, ग्राम पंचायत <span id="docCopySachivGp" class="font-bold"></span>।</li>
+            </ol>
+          </div>
+
+          <div class="mt-6 pt-3 border-t-2 border-dashed border-black text-[13.5px]">
+            <p class="font-bold text-center underline mb-2">पावती</p>
+            <div class="grid grid-cols-3 gap-4 pt-2 font-semibold">
+              <div>व्हीएलई नाम: <span id="docReceiptVle" class="font-bold"></span></div>
+              <div class="text-center">व्हीएलई का हस्ताक्षर: ....................</div>
+              <div class="text-right">दिनांक: ....../....../2026</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // YAHAN APNA GOOGLE APPS SCRIPT WEB APP URL (/exec) PASTE KAREIN:
+    // =========================================================================
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQViqSWtkH7N5TAw4B4ZKJzVrOlpmyAj99X_nLU06lwqD6eJtN6Uv5ZqL22o__7VN1/exec";
+
+    let rawData = [];
+    let filteredData = [];
+    let availableMonths = [];
+    let trendChartInstance = null;
+    let isFirstLoad = true;
+    let isSyncing = false;
+
+    const AUTO_SYNC_INTERVAL = 120;
+    let secondsRemaining = AUTO_SYNC_INTERVAL;
+    let timerInterval = null;
+    let progressSimulator = null;
+
+    function updateSyncProgress(percent, label) {
+      document.getElementById('syncProgressBar').style.width = `${percent}%`;
+      document.getElementById('syncPercentText').textContent = `${percent}%`;
+      if (label) document.getElementById('syncStatusLabel').textContent = label;
+    }
+
+    function startProgressSimulation() {
+      let current = 15;
+      updateSyncProgress(current, 'Connecting to Apps Script (DETAILS SHEET)...');
+      clearInterval(progressSimulator);
+      progressSimulator = setInterval(() => {
+        if (current < 85) {
+          current += Math.floor(Math.random() * 12) + 5;
+          if (current > 85) current = 85;
+          updateSyncProgress(current, 'Syncing DETAILS SHEET records...');
+        }
+      }, 300);
+    }
+
+    function syncDashboardData(forceFresh = false) {
+      if (isSyncing) return;
+      const cleanUrl = String(SCRIPT_URL || '').trim();
+
+      if (!cleanUrl || cleanUrl.includes("YOUR_GOOGLE_APPS_SCRIPT")) {
+        updateSyncProgress(100, "Error: index.html me SCRIPT_URL (/exec) paste karein!");
+        document.getElementById('syncProgressBar').className = "bg-rose-500 h-full rounded-full";
+        return;
+      }
+
+      isSyncing = true;
+      const syncIcon = document.getElementById('syncIcon');
+      const bar = document.getElementById('syncProgressBar');
+      syncIcon.classList.add('animate-spin');
+      bar.className = "sync-shimmer h-full rounded-full transition-all duration-300";
+      startProgressSimulation();
+
+      const oldScript = document.getElementById('gas-jsonp-script');
+      if (oldScript) oldScript.remove();
+
+      const script = document.createElement('script');
+      script.id = 'gas-jsonp-script';
+      const sep = cleanUrl.includes('?') ? '&' : '?';
+      script.src = `${cleanUrl}${sep}callback=handleGasResponse&refresh=${forceFresh ? '1' : '0'}&t=${Date.now()}`;
+
+      script.onerror = () => {
+        clearInterval(progressSimulator);
+        isSyncing = false;
+        syncIcon.classList.remove('animate-spin');
+        bar.className = "bg-rose-500 h-full rounded-full";
+        updateSyncProgress(100, "Sync Failed: Apps Script Deploy me 'Anyone' access & sahi /exec URL check karein.");
+        document.getElementById('liveBadgeText').textContent = "Sync Error";
+        document.getElementById('liveDot').className = "w-2 h-2 rounded-full bg-rose-500";
+      };
+
+      document.body.appendChild(script);
+    }
+
+    window.handleGasResponse = function(json) {
+      clearInterval(progressSimulator);
+      const syncIcon = document.getElementById('syncIcon');
+      const bar = document.getElementById('syncProgressBar');
+
+      try {
+        if (!json || json.status !== 'success') {
+          throw new Error(json?.message || "Invalid Apps Script response");
+        }
+
+        updateSyncProgress(92, "Building District, Block & Sarpanch views...");
+        availableMonths = json.months || [];
+
+        rawData = json.records.map(r => ({
+          district: r[0],
+          districtCode: r[1],
+          block: r[2],
+          blockCode: r[3],
+          gp: r[4],
+          gpCode: r[5],
+          cscId: r[6],
+          vleName: r[7],
+          mouStatus: r[8],
+          serviceType: r[9],
+          gender: r[10],
+          phase: r[11],
+          monthly: r[12].map((m, i) => ({
+            month: availableMonths[i],
+            tx: m[0],
+            amt: m[1],
+            status: m[2] === 1 ? 'ACTIVE' : 'INACTIVE'
+          })),
+          cumTx: r[13],
+          cumAmt: r[14],
+          inactive3M: r[15] === 1
+        }));
+
+        if (isFirstLoad) {
+          populateDropdowns();
+          isFirstLoad = false;
+        } else {
+          refreshDropdownOptionsPreservingSelection();
+        }
+
+        applyFilters();
+
+        const nowTime = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.getElementById('lastSyncTime').textContent = `Last: ${nowTime}`;
+        document.getElementById('liveBadgeText').textContent = `Live (DETAILS SHEET): ${rawData.length.toLocaleString('en-IN')} GPs`;
+        document.getElementById('liveDot').className = "w-2 h-2 rounded-full bg-emerald-400";
+
+        bar.className = "bg-emerald-500 h-full rounded-full transition-all duration-300";
+        updateSyncProgress(100, `Synced (${rawData.length.toLocaleString('en-IN')} GPs loaded from DETAILS SHEET)`);
+        secondsRemaining = AUTO_SYNC_INTERVAL;
+
+      } catch (err) {
+        bar.className = "bg-rose-500 h-full rounded-full";
+        updateSyncProgress(100, `Sync Error: ${err.message}`);
+        document.getElementById('liveBadgeText').textContent = "Sync Error";
+        document.getElementById('liveDot').className = "w-2 h-2 rounded-full bg-rose-500";
+        console.error(err);
+      } finally {
+        syncIcon.classList.remove('animate-spin');
+        isSyncing = false;
+      }
+    };
+
+    function startAutoSyncTimer() {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (!document.getElementById('autoSyncToggle').checked) {
+          document.getElementById('syncCountdown').textContent = 'PAUSED';
+          return;
+        }
+        secondsRemaining--;
+        if (secondsRemaining <= 0) {
+          syncDashboardData(false);
+          secondsRemaining = AUTO_SYNC_INTERVAL;
+        }
+        const mins = String(Math.floor(secondsRemaining / 60)).padStart(2, '0');
+        const secs = String(secondsRemaining % 60).padStart(2, '0');
+        document.getElementById('syncCountdown').textContent = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function toggleAutoSync() {
+      if (document.getElementById('autoSyncToggle').checked) {
+        secondsRemaining = AUTO_SYNC_INTERVAL;
+      }
+    }
+
+    function populateDropdowns() {
+      const districts = [...new Set(rawData.map(r => r.district).filter(Boolean))].sort();
+      const phases = [...new Set(rawData.map(r => r.phase).filter(Boolean))].sort();
+      const mous = [...new Set(rawData.map(r => r.mouStatus).filter(Boolean))].sort();
+
+      fillSelect('filterDistrict', districts, 'All Districts (State)');
+      fillSelect('filterPhase', phases, 'All Phases');
+      fillSelect('filterMou', mous, 'All MoU Status');
+
+      const monthSel = document.getElementById('filterMonth');
+      monthSel.innerHTML = `<option value="CUMULATIVE">Cumulative (All Months)</option>`;
+      [...availableMonths].reverse().forEach(m => {
+        monthSel.innerHTML += `<option value="${m}">${m}</option>`;
+      });
+
+      if (availableMonths.length >= 3) {
+        document.getElementById('last3MonthsNames').textContent = availableMonths.slice(-3).join(', ');
+      }
+    }
+
+    function refreshDropdownOptionsPreservingSelection() {
+      const prevDist = document.getElementById('filterDistrict').value;
+      const prevBlock = document.getElementById('filterBlock').value;
+      const prevMonth = document.getElementById('filterMonth').value;
+      const prevPhase = document.getElementById('filterPhase').value;
+      const prevMou = document.getElementById('filterMou').value;
+
+      populateDropdowns();
+
+      document.getElementById('filterDistrict').value = prevDist;
+      const blocks = [...new Set(
+        rawData.filter(r => prevDist === 'ALL' || r.district === prevDist).map(r => r.block).filter(Boolean)
+      )].sort();
+      fillSelect('filterBlock', blocks, 'All Blocks');
+
+      document.getElementById('filterBlock').value = prevBlock;
+      document.getElementById('filterMonth').value = prevMonth;
+      document.getElementById('filterPhase').value = prevPhase;
+      document.getElementById('filterMou').value = prevMou;
+    }
+
+    function fillSelect(id, items, defaultLabel) {
+      const sel = document.getElementById(id);
+      sel.innerHTML = `<option value="ALL">${defaultLabel}</option>`;
+      items.forEach(item => {
+        sel.innerHTML += `<option value="${item}">${item}</option>`;
+      });
+    }
+
+    function onDistrictChange() {
+      const dist = document.getElementById('filterDistrict').value;
+      const blocks = [...new Set(
+        rawData.filter(r => dist === 'ALL' || r.district === dist).map(r => r.block).filter(Boolean)
+      )].sort();
+      fillSelect('filterBlock', blocks, 'All Blocks');
+      applyFilters();
+    }
+
+    function resetFilters() {
+      document.getElementById('filterDistrict').value = 'ALL';
+      onDistrictChange();
+      document.getElementById('filterMonth').value = 'CUMULATIVE';
+      document.getElementById('filterPhase').value = 'ALL';
+      document.getElementById('filterMou').value = 'ALL';
+      applyFilters();
+    }
+
+    function getMetricsForRow(row, selectedMonth) {
+      if (selectedMonth === 'CUMULATIVE') {
+        const latest = row.monthly[row.monthly.length - 1];
+        return {
+          tx: row.cumTx,
+          amt: row.cumAmt,
+          isActive: latest ? latest.status === 'ACTIVE' : false
+        };
+      }
+      const mObj = row.monthly.find(m => m.month === selectedMonth);
+      return mObj ? { tx: mObj.tx, amt: mObj.amt, isActive: mObj.status === 'ACTIVE' } : { tx: 0, amt: 0, isActive: false };
+    }
+
+    function applyFilters() {
+      const dist = document.getElementById('filterDistrict').value;
+      const block = document.getElementById('filterBlock').value;
+      const phase = document.getElementById('filterPhase').value;
+      const mou = document.getElementById('filterMou').value;
+      const selectedMonth = document.getElementById('filterMonth').value;
+
+      filteredData = rawData.filter(r => {
+        if (dist !== 'ALL' && r.district !== dist) return false;
+        if (block !== 'ALL' && r.block !== block) return false;
+        if (phase !== 'ALL' && r.phase !== phase) return false;
+        if (mou !== 'ALL' && r.mouStatus !== mou) return false;
+        return true;
+      });
+
+      updateKPIs(selectedMonth);
+      renderBreakdowns();
+      renderTrendChart();
+      renderGeoTable();
+      renderSarpanchTable();
+    }
+
+    function updateKPIs(selectedMonth) {
+      const total = filteredData.length;
+      const mouDone = filteredData.filter(r => r.mouStatus === 'YES' || r.mouStatus === 'DONE' || r.mouStatus === 'SIGNED').length;
+      const inactive3M = filteredData.filter(r => r.inactive3M).length;
+
+      let activeCount = 0, totalTx = 0, totalAmt = 0;
+      filteredData.forEach(r => {
+        const m = getMetricsForRow(r, selectedMonth);
+        if (m.isActive) activeCount++;
+        totalTx += m.tx;
+        totalAmt += m.amt;
+      });
+
+      document.getElementById('kpiTotalGPs').textContent = total.toLocaleString('en-IN');
+      document.getElementById('kpiMouDone').textContent = mouDone.toLocaleString('en-IN');
+      document.getElementById('kpiMouPct').textContent = total ? `${((mouDone / total) * 100).toFixed(1)}% Completed` : '0%';
+      document.getElementById('kpiActive').textContent = activeCount.toLocaleString('en-IN');
+      document.getElementById('kpiActivePct').textContent = total ? `${((activeCount / total) * 100).toFixed(1)}% Active Rate` : '0%';
+      document.getElementById('kpiInactive3M').textContent = inactive3M.toLocaleString('en-IN');
+      document.getElementById('inactiveTabCount').textContent = inactive3M.toLocaleString('en-IN');
+      document.getElementById('kpiTx').textContent = totalTx.toLocaleString('en-IN');
+      document.getElementById('kpiPeriodLabel1').textContent = selectedMonth;
+      document.getElementById('kpiAmt').textContent = '₹' + Math.round(totalAmt).toLocaleString('en-IN');
+      document.getElementById('kpiAmtCr').textContent = `₹${(totalAmt / 10000000).toFixed(2)} Cr`;
+    }
+
+    function renderBreakdowns() {
+      const renderGroup = (containerId, keyFn) => {
+        const counts = {};
+        filteredData.forEach(r => {
+          const k = keyFn(r) || 'NOT SPECIFIED';
+          counts[k] = (counts[k] || 0) + 1;
+        });
+        const total = filteredData.length || 1;
+        const html = Object.entries(counts)
+          .sort((a, b) => b[1] - a[1])
+          .map(([label, cnt]) => {
+            const pct = ((cnt / total) * 100).toFixed(1);
+            return `
+              <div>
+                <div class="flex justify-between font-medium text-slate-700 mb-0.5">
+                  <span class="truncate pr-2">${label}</span>
+                  <span>${cnt.toLocaleString('en-IN')} (${pct}%)</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div class="bg-indigo-600 h-2 rounded-full" style="width:${pct}%"></div>
+                </div>
+              </div>`;
+          }).join('');
+        document.getElementById(containerId).innerHTML = html || '<p class="text-slate-400">No data</p>';
+      };
+
+      renderGroup('breakdownGender', r => r.gender);
+      renderGroup('breakdownServicePhase', r => `${r.phase || 'N/A'} - ${r.serviceType || 'N/A'}`);
+    }
+
+    function renderTrendChart() {
+      const labels = availableMonths;
+      const txSeries = labels.map((_, idx) => filteredData.reduce((sum, r) => sum + (r.monthly[idx]?.tx || 0), 0));
+      const activeSeries = labels.map((_, idx) => filteredData.filter(r => r.monthly[idx]?.status === 'ACTIVE').length);
+
+      const ctx = document.getElementById('trendChart').getContext('2d');
+      if (trendChartInstance) trendChartInstance.destroy();
+
+      trendChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Monthly Transactions',
+              data: txSeries,
+              backgroundColor: 'rgba(30, 58, 138, 0.75)',
+              yAxisID: 'y',
+              borderRadius: 4
+            },
+            {
+              label: 'Active VLEs',
+              data: activeSeries,
+              type: 'line',
+              borderColor: '#059669',
+              backgroundColor: '#059669',
+              borderWidth: 2.5,
+              tension: 0.3,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          scales: {
+            y: { type: 'linear', position: 'left', title: { display: true, text: 'Transactions' } },
+            y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Active VLEs' } }
+          }
+        }
+      });
+    }
+
+    function renderGeoTable() {
+      const selectedDist = document.getElementById('filterDistrict').value;
+      const selectedMonth = document.getElementById('filterMonth').value;
+      const search = document.getElementById('geoSearch').value.toLowerCase();
+      const isBlockMode = selectedDist !== 'ALL';
+
+      document.getElementById('geoTableTitle').textContent = isBlockMode
+        ? `Block-Wise Performance Summary — ${selectedDist} District`
+        : 'District-Wise Performance Summary (Chhattisgarh State)';
+      document.getElementById('geoColName').textContent = isBlockMode ? 'Block Name' : 'District Name';
+
+      const map = {};
+      filteredData.forEach(r => {
+        const key = isBlockMode ? r.block : r.district;
+        const code = isBlockMode ? r.blockCode : r.districtCode;
+        if (!key) return;
+        if (!map[key]) {
+          map[key] = { name: key, code, gps: 0, mou: 0, active: 0, inact3m: 0, tx: 0, amt: 0 };
+        }
+        const m = getMetricsForRow(r, selectedMonth);
+        map[key].gps++;
+        if (r.mouStatus === 'YES' || r.mouStatus === 'DONE' || r.mouStatus === 'SIGNED') map[key].mou++;
+        if (m.isActive) map[key].active++;
+        if (r.inactive3M) map[key].inact3m++;
+        map[key].tx += m.tx;
+        map[key].amt += m.amt;
+      });
+
+      const rows = Object.values(map)
+        .filter(item => item.name.toLowerCase().includes(search) || item.code.toLowerCase().includes(search))
+        .sort((a, b) => b.tx - a.tx);
+
+      document.getElementById('geoTableBody').innerHTML = rows.map((item, idx) => {
+        const actPct = item.gps ? ((item.active / item.gps) * 100).toFixed(1) : '0.0';
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="p-2.5 font-bold text-slate-500">#${idx + 1}</td>
+            <td class="p-2.5 font-bold text-slate-800">${item.name}</td>
+            <td class="p-2.5 text-slate-500">${item.code}</td>
+            <td class="p-2.5 text-right font-semibold">${item.gps.toLocaleString('en-IN')}</td>
+            <td class="p-2.5 text-right">${item.mou.toLocaleString('en-IN')}</td>
+            <td class="p-2.5 text-right text-emerald-700 font-bold">${item.active.toLocaleString('en-IN')}</td>
+            <td class="p-2.5 text-right font-semibold">${actPct}%</td>
+            <td class="p-2.5 text-right text-rose-600 font-bold">${item.inact3m.toLocaleString('en-IN')}</td>
+            <td class="p-2.5 text-right font-bold text-blue-800">${item.tx.toLocaleString('en-IN')}</td>
+            <td class="p-2.5 text-right font-semibold">₹${Math.round(item.amt).toLocaleString('en-IN')}</td>
+          </tr>`;
+      }).join('');
+    }
+
+    function renderSarpanchTable() {
+      const mode = document.getElementById('sarpanchFilterType').value;
+      const q = document.getElementById('gpSearchInput').value.toLowerCase();
+
+      const list = filteredData.filter(r => {
+        const latestStatus = r.monthly[r.monthly.length - 1]?.status || 'INACTIVE';
+        if (mode === '3M_INACTIVE' && !r.inactive3M) return false;
+        if (mode === 'LATEST_INACTIVE' && latestStatus === 'ACTIVE') return false;
+        if (q) {
+          const hay = `${r.gp} ${r.gpCode} ${r.cscId} ${r.vleName} ${r.block}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      document.getElementById('sarpanchResultCount').textContent = `Showing ${list.length.toLocaleString('en-IN')} Gram Panchayats`;
+
+      document.getElementById('sarpanchTableBody').innerHTML = list.slice(0, 300).map(r => {
+        const last3 = r.monthly.slice(-3);
+        const badges = last3.map(m => `
+          <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${m.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+            ${m.month}: ${m.tx}
+          </span>`).join(' ');
+
+        return `
+          <tr class="hover:bg-rose-50/40">
+            <td class="p-2.5">
+              <div class="font-bold text-slate-800">${r.district}</div>
+              <div class="text-slate-500">${r.block}</div>
+            </td>
+            <td class="p-2.5">
+              <div class="font-bold text-indigo-900">${r.gp}</div>
+              <div class="text-[11px] text-slate-500">GP Code: ${r.gpCode}</div>
+            </td>
+            <td class="p-2.5">
+              <div class="font-semibold text-slate-800">${r.vleName}</div>
+              <div class="text-[11px] font-mono text-slate-500">CSC ID: ${r.cscId}</div>
+            </td>
+            <td class="p-2.5">
+              <div>MoU: <strong>${r.mouStatus}</strong></div>
+              <div class="text-[11px] text-slate-500">${r.phase}</div>
+            </td>
+            <td class="p-2.5 space-x-1">${badges}</td>
+            <td class="p-2.5 text-right font-bold">${r.cumTx.toLocaleString('en-IN')}</td>
+            <td class="p-2.5 text-center">
+              <button onclick='openNotice(${JSON.stringify(r).replace(/'/g, "&#39;")})' class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold shadow-sm">
+                Generate Notice PDF
+              </button>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    function formatDateDDMMYYYY(dateObj) {
+      const dd = String(dateObj.getDate()).padStart(2, '0');
+      const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const yyyy = dateObj.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;
+    }
+
+    function refreshNoticeDates() {
+      const inputVal = document.getElementById('customNoticeDate').value;
+      const baseDate = inputVal ? new Date(inputVal) : new Date();
+      const deadlineDate = new Date(baseDate);
+      deadlineDate.setDate(baseDate.getDate() + 30);
+
+      document.getElementById('docNoticeDate').textContent = formatDateDDMMYYYY(baseDate);
+      document.getElementById('docDeadlineDate').textContent = formatDateDDMMYYYY(deadlineDate);
+    }
+
+    function openNotice(r) {
+      const todayISO = new Date().toISOString().slice(0, 10);
+      document.getElementById('customNoticeDate').value = todayISO;
+
+      document.getElementById('docGpHeader').textContent = r.gp || '................';
+      document.getElementById('docBlockHeader').textContent = r.block || '................';
+      document.getElementById('docDistrictHeader').textContent = r.district || '................';
+
+      document.getElementById('docLetterNo').textContent = `ADSK/${r.gpCode || '....'}/ग्रा.पं./2026`;
+      document.getElementById('docVleName').textContent = r.vleName || '................';
+      document.getElementById('docCscId').textContent = r.cscId || '................';
+      document.getElementById('docGpAddress').textContent = r.gp || '................';
+      document.getElementById('docBlockAddress').textContent = r.block || '................';
+
+      document.getElementById('docGpBody').textContent = r.gp || '................';
+
+      document.getElementById('docSignGp').textContent = r.gp || '................';
+      document.getElementById('docSignBlock').textContent = r.block || '................';
+      document.getElementById('docSignDistrict').textContent = r.district || '................';
+
+      document.getElementById('docCopyJanpad').textContent = r.block || '................';
+      document.getElementById('docCopyDistrict').textContent = r.district || '................';
+      document.getElementById('docCopySachivGp').textContent = r.gp || '................';
+
+      document.getElementById('docReceiptVle').textContent = r.vleName || '................';
+
+      refreshNoticeDates();
+
+      document.getElementById('noticeModal').classList.remove('hidden');
+      document.getElementById('noticeModal').classList.add('flex');
+    }
+
+    function closeModal() {
+      document.getElementById('noticeModal').classList.add('hidden');
+      document.getElementById('noticeModal').classList.remove('flex');
+    }
+
+    function switchTab(tab) {
+      ['overview', 'geo', 'sarpanch'].forEach(t => {
+        document.getElementById(`view-${t}`).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === tab) {
+          btn.className = 'tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg bg-slate-50 text-indigo-900 flex items-center gap-1.5';
+        } else {
+          btn.className = 'tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg text-blue-100 hover:bg-white/10 flex items-center gap-1.5';
+        }
+      });
+    }
+
+    function exportFilteredExcel() {
+      const rows = filteredData.map(r => {
+        const last3 = r.monthly.slice(-3);
+        return {
+          'District': r.district,
+          'Block': r.block,
+          'GP Name': r.gp,
+          'GP Code': r.gpCode,
+          'CSC ID': r.cscId,
+          'VLE Name': r.vleName,
+          'MoU Status': r.mouStatus,
+          'Phase': r.phase,
+          'Gender': r.gender,
+          '3-Month Continuous Inactive': r.inactive3M ? 'YES (ALERT)' : 'NO',
+          'Last 3 Months Tx': last3.map(m => `${m.month}:${m.tx}`).join(' | '),
+          'Cumulative Tx': r.cumTx,
+          'Cumulative Amount': r.cumAmt
+        };
+      });
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'ADSK_Monitoring');
+      XLSX.writeFile(wb, `ADSK_Monitoring_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    }
+
+    syncDashboardData(false);
+    startAutoSyncTimer();
+  </script>
+</body>
+</html>
