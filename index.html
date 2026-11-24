@@ -50,7 +50,7 @@
           </span>
         </div>
         <h1 class="text-xl md:text-2xl font-bold mt-1">Atal Digital Suvidha Kendra (ADSK) — Monitoring & Sarpanch Portal</h1>
-        <p class="text-xs text-blue-200">Source: <span class="font-semibold text-white">DETAILS SHEET</span> | CORS-Free Fast Sync | Official Sarpanch Notice PDF Generator</p>
+        <p class="text-xs text-blue-200">Source: <span class="font-semibold text-white">DETAILS SHEET</span> | Notice Download Tracking & Seal-Sign Pawati Upload</p>
       </div>
 
       <!-- Auto-Sync Controls & Export -->
@@ -101,7 +101,7 @@
         2. District & Block Comparison
       </button>
       <button onclick="switchTab('sarpanch')" id="tab-sarpanch" class="tab-btn px-4 py-2 text-sm font-semibold rounded-t-lg text-blue-100 hover:bg-white/10 flex items-center gap-1.5">
-        3. Sarpanch Monitoring & Notice PDF
+        3. Sarpanch Monitoring, Notice PDF & Pawati Upload
         <span id="inactiveTabCount" class="bg-rose-500 text-white text-[11px] px-1.5 py-0.2 rounded-full">0</span>
       </button>
     </div>
@@ -159,7 +159,7 @@
         <p class="text-[11px] text-slate-400 mt-1">VLEs Registered</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <p class="text-xs font-semibold text-slate-500 uppercase">MoU Signed</p>
+        <p class="text-xs font-semibold text-slate-500 uppercase">MoU Completed</p>
         <h2 id="kpiMouDone" class="text-2xl font-extrabold text-indigo-700 mt-1">0</h2>
         <p id="kpiMouPct" class="text-[11px] text-indigo-500 font-semibold mt-1">0% Completed</p>
       </div>
@@ -227,10 +227,12 @@
                 <th class="p-2.5" id="geoColName">District Name</th>
                 <th class="p-2.5">Code</th>
                 <th class="p-2.5 text-right">Total GPs</th>
-                <th class="p-2.5 text-right">MoU Signed</th>
+                <th class="p-2.5 text-right">MoU Completed</th>
                 <th class="p-2.5 text-right">Active VLEs</th>
                 <th class="p-2.5 text-right">Active %</th>
                 <th class="p-2.5 text-right text-rose-700">3M Inactive</th>
+                <th class="p-2.5 text-right">Notice Downloaded</th>
+                <th class="p-2.5 text-right text-emerald-700">Pawati Uploaded</th>
                 <th class="p-2.5 text-right">Transactions</th>
                 <th class="p-2.5 text-right">Amount (₹)</th>
               </tr>
@@ -241,28 +243,39 @@
       </div>
     </div>
 
-    <!-- TAB 3: SARPANCH MONITORING & AUTO PDF NOTICE GENERATOR -->
+    <!-- TAB 3: SARPANCH MONITORING, NOTICE PDF & PAWATI UPLOAD -->
     <div id="view-sarpanch" class="hidden space-y-5">
-      <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div>
-          <h3 class="text-base font-bold text-amber-900">ग्राम पंचायत / सरपंच निगरानी एवं MoU समाप्ति नोटिस जनरेटर</h3>
-          <p class="text-xs text-amber-800 mt-0.5">
-            पिछले <strong>3 माह (<span id="last3MonthsNames">-</span>)</strong> से लगातार निष्क्रिय (Inactive) VLEs की सूची। <strong>"Generate Notice PDF"</strong> पर क्लिक करते ही सभी विवरण ऑटो-फिल होकर ऑफिशियल लेटरहेड PDF तैयार हो जाएगा।
-          </p>
+      <!-- Tracking Summary Banner -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl">
+          <p class="text-xs font-bold text-amber-800 uppercase">Total 3-Month Inactive GPs</p>
+          <h3 id="trackTotalInactive" class="text-2xl font-extrabold text-amber-950 mt-1">0</h3>
+          <p class="text-[11px] text-amber-700 mt-0.5">Last 3 Months: <span id="last3MonthsNames" class="font-semibold">-</span></p>
         </div>
-        <div class="flex gap-2">
-          <select id="sarpanchFilterType" onchange="renderSarpanchTable()" class="border border-amber-300 bg-white rounded-lg px-3 py-1.5 text-xs font-semibold">
-            <option value="3M_INACTIVE">Only 3-Month Continuous Inactive</option>
-            <option value="LATEST_INACTIVE">Latest Month Inactive</option>
-            <option value="ALL_GP">All Gram Panchayats (Sarpanch View)</option>
-          </select>
+        <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl">
+          <p class="text-xs font-bold text-blue-800 uppercase">Notices Generated / Downloaded</p>
+          <h3 id="trackNoticeDownloaded" class="text-2xl font-extrabold text-blue-900 mt-1">0</h3>
+          <p class="text-[11px] text-blue-700 mt-0.5">Auto-logged in NOTICE_TRACKING sheet</p>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl">
+          <p class="text-xs font-bold text-emerald-800 uppercase">Seal & Sign Pawati Uploaded</p>
+          <h3 id="trackPawatiUploaded" class="text-2xl font-extrabold text-emerald-900 mt-1">0</h3>
+          <p class="text-[11px] text-emerald-700 mt-0.5">Sarpanch & VLE Signed Acknowledgment</p>
         </div>
       </div>
 
       <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-          <input type="text" id="gpSearchInput" onkeyup="renderSarpanchTable()" placeholder="Search by GP Name, GP Code, CSC ID, or VLE Name..." class="border border-slate-300 rounded-lg px-3 py-2 text-sm w-full sm:w-96" />
-          <span id="sarpanchResultCount" class="text-xs font-bold text-slate-600">Showing 0 records</span>
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+          <input type="text" id="gpSearchInput" onkeyup="renderSarpanchTable()" placeholder="Search by GP Name, GP Code, CSC ID, or VLE Name..." class="border border-slate-300 rounded-lg px-3 py-2 text-sm w-full md:w-96" />
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="sarpanchFilterType" onchange="renderSarpanchTable()" class="border border-slate-300 bg-white rounded-lg px-3 py-2 text-xs font-semibold">
+              <option value="3M_INACTIVE">Only 3-Month Continuous Inactive</option>
+              <option value="NOTICE_DOWNLOADED">Notice Downloaded (Pending Pawati)</option>
+              <option value="PAWATI_UPLOADED">Pawati Uploaded (Completed)</option>
+              <option value="ALL_GP">All Gram Panchayats (Sarpanch View)</option>
+            </select>
+            <span id="sarpanchResultCount" class="text-xs font-bold text-slate-600">Showing 0 records</span>
+          </div>
         </div>
 
         <div class="overflow-x-auto">
@@ -272,10 +285,10 @@
                 <th class="p-2.5">District / Block</th>
                 <th class="p-2.5">Gram Panchayat (Code)</th>
                 <th class="p-2.5">VLE Name & CSC ID</th>
-                <th class="p-2.5">MoU / Phase</th>
                 <th class="p-2.5">Last 3 Months Status</th>
-                <th class="p-2.5 text-right">Cumulative Tx</th>
-                <th class="p-2.5 text-center">Official Notice</th>
+                <th class="p-2.5">Tracking Status</th>
+                <th class="p-2.5 text-center">1. Notice PDF</th>
+                <th class="p-2.5 text-center">2. Seal-Sign Pawati</th>
               </tr>
             </thead>
             <tbody id="sarpanchTableBody" class="divide-y divide-slate-200"></tbody>
@@ -298,7 +311,7 @@
           </label>
         </div>
         <div class="flex items-center gap-2">
-          <button onclick="window.print()" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold px-4 py-2 rounded-lg shadow">
+          <button onclick="downloadAndLogNotice()" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold px-4 py-2 rounded-lg shadow">
             Download / Print PDF
           </button>
           <button onclick="closeModal()" class="bg-slate-600 hover:bg-slate-500 text-white text-xs font-semibold px-3 py-2 rounded-lg">
@@ -309,7 +322,6 @@
 
       <div class="p-6 md:p-10 bg-slate-100 overflow-y-auto max-h-[82vh]">
         <div id="printNoticeArea" class="hindi-doc bg-white mx-auto max-w-[210mm] p-8 md:p-12 shadow-md border border-slate-300 text-[14.5px] leading-[1.75] text-black">
-          
           <div class="text-center border-b-2 border-black pb-2.5 mb-3">
             <h2 class="text-xl font-bold tracking-wide">कार्यालय ग्राम पंचायत <span id="docGpHeader" class="underline decoration-dotted"></span></h2>
             <p class="text-[15px] font-semibold mt-0.5">
@@ -385,8 +397,39 @@
               <div class="text-right">दिनांक: ....../....../2026</div>
             </div>
           </div>
-
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seal & Sign Pawati Upload Modal -->
+  <div id="pawatiModal" class="fixed inset-0 bg-slate-900/70 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="text-base font-bold text-slate-900">पावती अपलोड (सरपंच एवं VLE सील-हस्ताक्षर)</h3>
+        <button onclick="closePawatiModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg">&times;</button>
+      </div>
+      <div class="mt-3 space-y-3 text-xs">
+        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+          <p><strong>ग्राम पंचायत:</strong> <span id="upGpName"></span> (<span id="upGpCode"></span>)</p>
+          <p><strong>VLE:</strong> <span id="upVleName"></span> | <strong>CSC ID:</strong> <span id="upCscId"></span></p>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">सीलबंद एवं हस्ताक्षरित पावती फोटो / PDF चुनें *</label>
+          <input type="file" id="pawatiFileInput" accept="image/*,application/pdf" class="w-full border border-slate-300 rounded-lg p-2 bg-white" />
+          <p class="text-[11px] text-slate-400 mt-1">Max 5 MB (JPG, PNG, ya PDF)</p>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">रिमार्क्स / तमील विवरण (Optional)</label>
+          <input type="text" id="pawatiRemarks" placeholder="उदा. सरपंच एवं VLE हस्ताक्षर सहित पावती संलग्न" class="w-full border border-slate-300 rounded-lg px-3 py-2" />
+        </div>
+        <div id="uploadStatusMsg" class="hidden text-xs font-semibold p-2 rounded-lg"></div>
+      </div>
+      <div class="flex justify-end gap-2 mt-5">
+        <button onclick="closePawatiModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold px-4 py-2 rounded-lg">Cancel</button>
+        <button id="submitPawatiBtn" onclick="submitPawatiUpload()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow">
+          Upload Pawati
+        </button>
       </div>
     </div>
   </div>
@@ -400,9 +443,11 @@
     let rawData = [];
     let filteredData = [];
     let availableMonths = [];
+    let trackingMap = {};
     let trendChartInstance = null;
     let isFirstLoad = true;
     let isSyncing = false;
+    let activeRecord = null;
 
     const AUTO_SYNC_INTERVAL = 120;
     let secondsRemaining = AUTO_SYNC_INTERVAL;
@@ -417,13 +462,13 @@
 
     function startProgressSimulation() {
       let current = 15;
-      updateSyncProgress(current, 'Connecting to Apps Script (DETAILS SHEET)...');
+      updateSyncProgress(current, 'Connecting to DETAILS SHEET...');
       clearInterval(progressSimulator);
       progressSimulator = setInterval(() => {
         if (current < 85) {
           current += Math.floor(Math.random() * 12) + 5;
           if (current > 85) current = 85;
-          updateSyncProgress(current, 'Syncing DETAILS SHEET records...');
+          updateSyncProgress(current, 'Syncing DETAILS SHEET & Notice Tracking...');
         }
       }, 300);
     }
@@ -431,7 +476,6 @@
     function syncDashboardData(forceFresh = false) {
       if (isSyncing) return;
       const cleanUrl = String(SCRIPT_URL || '').trim();
-
       if (!cleanUrl || cleanUrl.includes("YOUR_GOOGLE_APPS_SCRIPT")) {
         updateSyncProgress(100, "Error: index.html me SCRIPT_URL (/exec) paste karein!");
         document.getElementById('syncProgressBar').className = "bg-rose-500 h-full rounded-full";
@@ -458,9 +502,7 @@
         isSyncing = false;
         syncIcon.classList.remove('animate-spin');
         bar.className = "bg-rose-500 h-full rounded-full";
-        updateSyncProgress(100, "Sync Failed: Apps Script Deploy me 'Anyone' access & sahi /exec URL check karein.");
-        document.getElementById('liveBadgeText').textContent = "Sync Error";
-        document.getElementById('liveDot').className = "w-2 h-2 rounded-full bg-rose-500";
+        updateSyncProgress(100, "Sync Failed: Apps Script Deploy me 'Anyone' access check karein.");
       };
 
       document.body.appendChild(script);
@@ -472,36 +514,44 @@
       const bar = document.getElementById('syncProgressBar');
 
       try {
-        if (!json || json.status !== 'success') {
-          throw new Error(json?.message || "Invalid Apps Script response");
-        }
+        if (!json || json.status !== 'success') throw new Error(json?.message || "Invalid response");
 
-        updateSyncProgress(92, "Building District, Block & Sarpanch views...");
+        updateSyncProgress(92, "Updating Dashboard & Tracking Logs...");
         availableMonths = json.months || [];
+        trackingMap = json.tracking || {};
 
-        rawData = json.records.map(r => ({
-          district: r[0],
-          districtCode: r[1],
-          block: r[2],
-          blockCode: r[3],
-          gp: r[4],
-          gpCode: r[5],
-          cscId: r[6],
-          vleName: r[7],
-          mouStatus: r[8],
-          serviceType: r[9],
-          gender: r[10],
-          phase: r[11],
-          monthly: r[12].map((m, i) => ({
-            month: availableMonths[i],
-            tx: m[0],
-            amt: m[1],
-            status: m[2] === 1 ? 'ACTIVE' : 'INACTIVE'
-          })),
-          cumTx: r[13],
-          cumAmt: r[14],
-          inactive3M: r[15] === 1
-        }));
+        rawData = json.records.map(r => {
+          const trackKey = `${r[5]}_${r[6]}`;
+          const tr = trackingMap[trackKey] || { downloaded: false, pawatiUploaded: false, pawatiUrl: '' };
+          return {
+            district: r[0],
+            districtCode: r[1],
+            block: r[2],
+            blockCode: r[3],
+            gp: r[4],
+            gpCode: r[5],
+            cscId: r[6],
+            vleName: r[7],
+            mouStatus: r[8],
+            serviceType: r[9],
+            gender: r[10],
+            phase: r[11],
+            monthly: r[12].map((m, i) => ({
+              month: availableMonths[i],
+              tx: m[0],
+              amt: m[1],
+              status: m[2] === 1 ? 'ACTIVE' : 'INACTIVE'
+            })),
+            cumTx: r[13],
+            cumAmt: r[14],
+            inactive3M: r[15] === 1,
+            noticeDownloaded: tr.downloaded,
+            downloadTime: tr.downloadTime || '',
+            pawatiUploaded: tr.pawatiUploaded,
+            pawatiUrl: tr.pawatiUrl || '',
+            uploadTime: tr.uploadTime || ''
+          };
+        });
 
         if (isFirstLoad) {
           populateDropdowns();
@@ -524,8 +574,6 @@
       } catch (err) {
         bar.className = "bg-rose-500 h-full rounded-full";
         updateSyncProgress(100, `Sync Error: ${err.message}`);
-        document.getElementById('liveBadgeText').textContent = "Sync Error";
-        document.getElementById('liveDot').className = "w-2 h-2 rounded-full bg-rose-500";
         console.error(err);
       } finally {
         syncIcon.classList.remove('animate-spin');
@@ -552,9 +600,7 @@
     }
 
     function toggleAutoSync() {
-      if (document.getElementById('autoSyncToggle').checked) {
-        secondsRemaining = AUTO_SYNC_INTERVAL;
-      }
+      if (document.getElementById('autoSyncToggle').checked) secondsRemaining = AUTO_SYNC_INTERVAL;
     }
 
     function populateDropdowns() {
@@ -661,8 +707,14 @@
 
     function updateKPIs(selectedMonth) {
       const total = filteredData.length;
-      const mouDone = filteredData.filter(r => r.mouStatus === 'YES' || r.mouStatus === 'DONE' || r.mouStatus === 'SIGNED').length;
+      // Exact match for MOU COMPLETED (plus YES/DONE/SIGNED safety)
+      const mouDone = filteredData.filter(r =>
+        r.mouStatus === 'MOU COMPLETED' || r.mouStatus === 'COMPLETED' || r.mouStatus === 'YES' || r.mouStatus === 'SIGNED'
+      ).length;
+
       const inactive3M = filteredData.filter(r => r.inactive3M).length;
+      const downloadedCnt = filteredData.filter(r => r.noticeDownloaded).length;
+      const pawatiCnt = filteredData.filter(r => r.pawatiUploaded).length;
 
       let activeCount = 0, totalTx = 0, totalAmt = 0;
       filteredData.forEach(r => {
@@ -674,7 +726,7 @@
 
       document.getElementById('kpiTotalGPs').textContent = total.toLocaleString('en-IN');
       document.getElementById('kpiMouDone').textContent = mouDone.toLocaleString('en-IN');
-      document.getElementById('kpiMouPct').textContent = total ? `${((mouDone / total) * 100).toFixed(1)}% Completed` : '0%';
+      document.getElementById('kpiMouPct').textContent = total ? `${((mouDone / total) * 100).toFixed(1)}% MOU Completed` : '0%';
       document.getElementById('kpiActive').textContent = activeCount.toLocaleString('en-IN');
       document.getElementById('kpiActivePct').textContent = total ? `${((activeCount / total) * 100).toFixed(1)}% Active Rate` : '0%';
       document.getElementById('kpiInactive3M').textContent = inactive3M.toLocaleString('en-IN');
@@ -683,6 +735,11 @@
       document.getElementById('kpiPeriodLabel1').textContent = selectedMonth;
       document.getElementById('kpiAmt').textContent = '₹' + Math.round(totalAmt).toLocaleString('en-IN');
       document.getElementById('kpiAmtCr').textContent = `₹${(totalAmt / 10000000).toFixed(2)} Cr`;
+
+      // Update Sarpanch Tracking Summary Cards
+      document.getElementById('trackTotalInactive').textContent = inactive3M.toLocaleString('en-IN');
+      document.getElementById('trackNoticeDownloaded').textContent = downloadedCnt.toLocaleString('en-IN');
+      document.getElementById('trackPawatiUploaded').textContent = pawatiCnt.toLocaleString('en-IN');
     }
 
     function renderBreakdowns() {
@@ -776,13 +833,15 @@
         const code = isBlockMode ? r.blockCode : r.districtCode;
         if (!key) return;
         if (!map[key]) {
-          map[key] = { name: key, code, gps: 0, mou: 0, active: 0, inact3m: 0, tx: 0, amt: 0 };
+          map[key] = { name: key, code, gps: 0, mou: 0, active: 0, inact3m: 0, downloaded: 0, pawati: 0, tx: 0, amt: 0 };
         }
         const m = getMetricsForRow(r, selectedMonth);
         map[key].gps++;
-        if (r.mouStatus === 'YES' || r.mouStatus === 'DONE' || r.mouStatus === 'SIGNED') map[key].mou++;
+        if (r.mouStatus === 'MOU COMPLETED' || r.mouStatus === 'COMPLETED' || r.mouStatus === 'YES' || r.mouStatus === 'SIGNED') map[key].mou++;
         if (m.isActive) map[key].active++;
         if (r.inactive3M) map[key].inact3m++;
+        if (r.noticeDownloaded) map[key].downloaded++;
+        if (r.pawatiUploaded) map[key].pawati++;
         map[key].tx += m.tx;
         map[key].amt += m.amt;
       });
@@ -799,11 +858,13 @@
             <td class="p-2.5 font-bold text-slate-800">${item.name}</td>
             <td class="p-2.5 text-slate-500">${item.code}</td>
             <td class="p-2.5 text-right font-semibold">${item.gps.toLocaleString('en-IN')}</td>
-            <td class="p-2.5 text-right">${item.mou.toLocaleString('en-IN')}</td>
+            <td class="p-2.5 text-right text-indigo-700 font-semibold">${item.mou.toLocaleString('en-IN')}</td>
             <td class="p-2.5 text-right text-emerald-700 font-bold">${item.active.toLocaleString('en-IN')}</td>
             <td class="p-2.5 text-right font-semibold">${actPct}%</td>
             <td class="p-2.5 text-right text-rose-600 font-bold">${item.inact3m.toLocaleString('en-IN')}</td>
-            <td class="p-2.5 text-right font-bold text-blue-800">${item.tx.toLocaleString('en-IN')}</td>
+            <td class="p-2.5 text-right text-blue-700 font-bold">${item.downloaded.toLocaleString('en-IN')}</td>
+            <td class="p-2.5 text-right text-emerald-700 font-bold">${item.pawati.toLocaleString('en-IN')}</td>
+            <td class="p-2.5 text-right font-bold text-slate-900">${item.tx.toLocaleString('en-IN')}</td>
             <td class="p-2.5 text-right font-semibold">₹${Math.round(item.amt).toLocaleString('en-IN')}</td>
           </tr>`;
       }).join('');
@@ -814,9 +875,9 @@
       const q = document.getElementById('gpSearchInput').value.toLowerCase();
 
       const list = filteredData.filter(r => {
-        const latestStatus = r.monthly[r.monthly.length - 1]?.status || 'INACTIVE';
         if (mode === '3M_INACTIVE' && !r.inactive3M) return false;
-        if (mode === 'LATEST_INACTIVE' && latestStatus === 'ACTIVE') return false;
+        if (mode === 'NOTICE_DOWNLOADED' && !r.noticeDownloaded) return false;
+        if (mode === 'PAWATI_UPLOADED' && !r.pawatiUploaded) return false;
         if (q) {
           const hay = `${r.gp} ${r.gpCode} ${r.cscId} ${r.vleName} ${r.block}`.toLowerCase();
           if (!hay.includes(q)) return false;
@@ -833,6 +894,21 @@
             ${m.month}: ${m.tx}
           </span>`).join(' ');
 
+        const statusBadge = r.pawatiUploaded
+          ? `<span class="inline-block bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold text-[10px]">✓ Pawati Uploaded</span><div class="text-[10px] text-slate-400 mt-0.5">${r.uploadTime}</div>`
+          : r.noticeDownloaded
+            ? `<span class="inline-block bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold text-[10px]">Notice Downloaded</span><div class="text-[10px] text-slate-400 mt-0.5">${r.downloadTime}</div>`
+            : `<span class="inline-block bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px]">Pending Action</span>`;
+
+        const pawatiBtn = r.pawatiUploaded
+          ? `<div class="flex flex-col items-center gap-1">
+               <a href="${r.pawatiUrl}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded text-[11px] font-bold">View Pawati</a>
+               <button onclick='openPawatiModal(${JSON.stringify(r).replace(/'/g, "&#39;")})' class="text-[10px] text-indigo-600 underline">Re-upload</button>
+             </div>`
+          : `<button onclick='openPawatiModal(${JSON.stringify(r).replace(/'/g, "&#39;")})' class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded-lg text-[11px] font-bold shadow-sm">
+               Upload Pawati
+             </button>`;
+
         return `
           <tr class="hover:bg-rose-50/40">
             <td class="p-2.5">
@@ -847,17 +923,14 @@
               <div class="font-semibold text-slate-800">${r.vleName}</div>
               <div class="text-[11px] font-mono text-slate-500">CSC ID: ${r.cscId}</div>
             </td>
-            <td class="p-2.5">
-              <div>MoU: <strong>${r.mouStatus}</strong></div>
-              <div class="text-[11px] text-slate-500">${r.phase}</div>
-            </td>
             <td class="p-2.5 space-x-1">${badges}</td>
-            <td class="p-2.5 text-right font-bold">${r.cumTx.toLocaleString('en-IN')}</td>
+            <td class="p-2.5">${statusBadge}</td>
             <td class="p-2.5 text-center">
               <button onclick='openNotice(${JSON.stringify(r).replace(/'/g, "&#39;")})' class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold shadow-sm">
                 Generate Notice PDF
               </button>
             </td>
+            <td class="p-2.5 text-center">${pawatiBtn}</td>
           </tr>`;
       }).join('');
     }
@@ -880,6 +953,7 @@
     }
 
     function openNotice(r) {
+      activeRecord = r;
       const todayISO = new Date().toISOString().slice(0, 10);
       document.getElementById('customNoticeDate').value = todayISO;
 
@@ -911,9 +985,123 @@
       document.getElementById('noticeModal').classList.add('flex');
     }
 
+    function downloadAndLogNotice() {
+      if (activeRecord) {
+        // Log download silently to Google Sheet (NOTICE_TRACKING tab)
+        fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            action: 'LOG_DOWNLOAD',
+            district: activeRecord.district,
+            block: activeRecord.block,
+            gp: activeRecord.gp,
+            gpCode: activeRecord.gpCode,
+            cscId: activeRecord.cscId,
+            vleName: activeRecord.vleName
+          })
+        }).catch(() => {});
+
+        activeRecord.noticeDownloaded = true;
+        activeRecord.downloadTime = new Date().toLocaleString('en-IN');
+        updateKPIs(document.getElementById('filterMonth').value);
+        renderGeoTable();
+        renderSarpanchTable();
+      }
+      window.print();
+    }
+
     function closeModal() {
       document.getElementById('noticeModal').classList.add('hidden');
       document.getElementById('noticeModal').classList.remove('flex');
+    }
+
+    // Pawati Upload Functions
+    function openPawatiModal(r) {
+      activeRecord = r;
+      document.getElementById('upGpName').textContent = r.gp;
+      document.getElementById('upGpCode').textContent = r.gpCode;
+      document.getElementById('upVleName').textContent = r.vleName;
+      document.getElementById('upCscId').textContent = r.cscId;
+      document.getElementById('pawatiFileInput').value = '';
+      document.getElementById('pawatiRemarks').value = '';
+      const msg = document.getElementById('uploadStatusMsg');
+      msg.classList.add('hidden');
+      document.getElementById('pawatiModal').classList.remove('hidden');
+      document.getElementById('pawatiModal').classList.add('flex');
+    }
+
+    function closePawatiModal() {
+      document.getElementById('pawatiModal').classList.add('hidden');
+      document.getElementById('pawatiModal').classList.remove('flex');
+    }
+
+    function submitPawatiUpload() {
+      const fileInput = document.getElementById('pawatiFileInput');
+      const msg = document.getElementById('uploadStatusMsg');
+      const btn = document.getElementById('submitPawatiBtn');
+
+      if (!fileInput.files || !fileInput.files[0]) {
+        msg.textContent = "Kripya pehle Seal & Sign wali Pawati file (Photo/PDF) chunein.";
+        msg.className = "text-xs font-semibold p-2 rounded-lg bg-rose-100 text-rose-800 block";
+        return;
+      }
+
+      const file = fileInput.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        msg.textContent = "File size 5 MB se kam honi chahiye.";
+        msg.className = "text-xs font-semibold p-2 rounded-lg bg-rose-100 text-rose-800 block";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Uploading to Drive...";
+      msg.textContent = "Pawati upload ho rahi hai, kripya pratiksha karein...";
+      msg.className = "text-xs font-semibold p-2 rounded-lg bg-blue-100 text-blue-800 block";
+
+      const reader = new FileReader();
+      reader.onload = async function() {
+        const base64Data = reader.result.split(',')[1];
+        const ext = file.name.split('.').pop();
+
+        try {
+          await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({
+              action: 'UPLOAD_PAWATI',
+              district: activeRecord.district,
+              block: activeRecord.block,
+              gp: activeRecord.gp,
+              gpCode: activeRecord.gpCode,
+              cscId: activeRecord.cscId,
+              vleName: activeRecord.vleName,
+              remarks: document.getElementById('pawatiRemarks').value.trim(),
+              fileBase64: base64Data,
+              mimeType: file.type,
+              fileExt: ext
+            })
+          });
+
+          msg.textContent = "✓ Pawati safaltapurvak upload ho gayi! Sync ho raha hai...";
+          msg.className = "text-xs font-semibold p-2 rounded-lg bg-emerald-100 text-emerald-800 block";
+
+          setTimeout(() => {
+            closePawatiModal();
+            syncDashboardData(false);
+          }, 1500);
+
+        } catch (err) {
+          msg.textContent = "Upload error: " + err.message;
+          msg.className = "text-xs font-semibold p-2 rounded-lg bg-rose-100 text-rose-800 block";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Upload Pawati";
+        }
+      };
+      reader.readAsDataURL(file);
     }
 
     function switchTab(tab) {
@@ -942,6 +1130,9 @@
           'Phase': r.phase,
           'Gender': r.gender,
           '3-Month Continuous Inactive': r.inactive3M ? 'YES (ALERT)' : 'NO',
+          'Notice Downloaded': r.noticeDownloaded ? 'YES' : 'NO',
+          'Pawati Uploaded': r.pawatiUploaded ? 'YES' : 'NO',
+          'Pawati Drive Link': r.pawatiUrl || '',
           'Last 3 Months Tx': last3.map(m => `${m.month}:${m.tx}`).join(' | '),
           'Cumulative Tx': r.cumTx,
           'Cumulative Amount': r.cumAmt
