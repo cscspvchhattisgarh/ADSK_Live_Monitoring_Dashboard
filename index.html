@@ -537,7 +537,7 @@
     </div>
   </div>
 
-  <!-- Dedicated Clean Print Wrapper -->
+  <!-- Dedicated Clean Print Wrapper (Always hidden on screen, only visible in @media print) -->
   <div id="dedicatedPrintWrapper" class="hidden"></div>
 
   <script>
@@ -559,7 +559,6 @@
     let dirtyTabs = { overview: true, geo: true, sarpanch: true };
     let geoSortState = { key: 'name', dir: 'asc' };
 
-    // Fast Non-Blocking IndexedDB Cache Helpers
     function saveToIDB(payload) {
       try {
         const req = indexedDB.open(IDB_NAME, 1);
@@ -802,7 +801,6 @@
       return mObj ? { tx: mObj.tx, amt: mObj.amt, isActive: mObj.status === 'ACTIVE' } : { tx: 0, amt: 0, isActive: false };
     }
 
-    // Lazy-Tab Rendering: Only render currently visible tab immediately
     function applyFilters() {
       const dist = document.getElementById('filterDistrict').value;
       const block = document.getElementById('filterBlock').value;
@@ -876,7 +874,6 @@
       document.getElementById('trackPawatiUploaded').textContent = pawatiCnt.toLocaleString('en-IN');
     }
 
-    // Snapshot Report (ADSK REPORT - PHASE 1 TO 5)
     function buildSnapshotRows() {
       const selectedDist = document.getElementById('filterDistrict').value;
       const isBlockMode = selectedDist !== 'ALL';
@@ -971,12 +968,13 @@
     function printSnapshotLandscapePDF() {
       document.getElementById('dynamicPageStyle').innerHTML = `@page { size: A4 landscape; margin: 0; }`;
       const wrapper = document.getElementById('dedicatedPrintWrapper');
-      wrapper.className = 'landscape-report-print';
+      wrapper.className = 'hidden landscape-report-print';
       wrapper.innerHTML = document.getElementById('snapshotTableContainer').innerHTML;
 
       setTimeout(() => {
         window.print();
         setTimeout(() => {
+          wrapper.innerHTML = '';
           document.getElementById('dynamicPageStyle').innerHTML = `@page { size: A4 portrait; margin: 0; }`;
         }, 500);
       }, 100);
@@ -1019,7 +1017,6 @@
       XLSX.writeFile(wb, `ADSK_Phase_1_to_5_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
     }
 
-    // Top Transacting VLE List
     function computeTopVleList() {
       const level = document.getElementById('topVleLevel').value;
       const periodMode = document.getElementById('topVlePeriod').value;
@@ -1305,7 +1302,6 @@
       }).join('');
     }
 
-    // Fast Sarpanch Table without JSON.stringify bottleneck
     function renderSarpanchTable() {
       const mode = document.getElementById('sarpanchFilterType').value;
       const q = document.getElementById('gpSearchInput').value.toLowerCase();
@@ -1427,10 +1423,13 @@
 
       document.getElementById('dynamicPageStyle').innerHTML = `@page { size: A4 portrait; margin: 0; }`;
       const printWrapper = document.getElementById('dedicatedPrintWrapper');
-      printWrapper.className = 'notice-print';
+      printWrapper.className = 'hidden notice-print';
       printWrapper.innerHTML = document.getElementById('noticeSheetContent').innerHTML;
 
-      setTimeout(() => window.print(), 100);
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => { printWrapper.innerHTML = ''; }, 500);
+      }, 100);
     }
 
     function closeModal() {
