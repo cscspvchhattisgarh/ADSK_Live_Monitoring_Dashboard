@@ -50,7 +50,7 @@
           </span>
         </div>
         <h1 class="text-xl md:text-2xl font-bold mt-1">Atal Digital Suvidha Kendra (ADSK) — Monitoring & Sarpanch Portal</h1>
-        <p class="text-xs text-blue-200">Source: <span class="font-semibold text-white">DETAILS SHEET</span> | Notice Download Tracking & Seal-Sign Pawati Upload</p>
+        <p class="text-xs text-blue-200">Source: <span class="font-semibold text-white">DETAILS SHEET</span> | Instant Cache Sync | Notice Tracking & Seal-Sign Pawati Upload</p>
       </div>
 
       <!-- Auto-Sync Controls & Export -->
@@ -161,7 +161,7 @@
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
         <p class="text-xs font-semibold text-slate-500 uppercase">MoU Completed</p>
         <h2 id="kpiMouDone" class="text-2xl font-extrabold text-indigo-700 mt-1">0</h2>
-        <p id="kpiMouPct" class="text-[11px] text-indigo-500 font-semibold mt-1">0% Completed</p>
+        <p id="kpiMouPct" class="text-[11px] text-indigo-500 font-semibold mt-1">0% MOU Completed</p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
         <p class="text-xs font-semibold text-slate-500 uppercase">Active VLEs</p>
@@ -435,10 +435,8 @@
   </div>
 
   <script>
-    // =========================================================================
-    // YAHAN APNA GOOGLE APPS SCRIPT WEB APP URL (/exec) PASTE KAREIN:
-    // =========================================================================
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQViqSWtkH7N5TAw4B4ZKJzVrOlpmyAj99X_nLU06lwqD6eJtN6Uv5ZqL22o__7VN1/exec";
+    const LOCAL_CACHE_KEY = 'ADSK_PORTAL_CACHE_V6';
 
     let rawData = [];
     let filteredData = [];
@@ -475,13 +473,6 @@
 
     function syncDashboardData(forceFresh = false) {
       if (isSyncing) return;
-      const cleanUrl = String(SCRIPT_URL || '').trim();
-      if (!cleanUrl || cleanUrl.includes("YOUR_GOOGLE_APPS_SCRIPT")) {
-        updateSyncProgress(100, "Error: index.html me SCRIPT_URL (/exec) paste karein!");
-        document.getElementById('syncProgressBar').className = "bg-rose-500 h-full rounded-full";
-        return;
-      }
-
       isSyncing = true;
       const syncIcon = document.getElementById('syncIcon');
       const bar = document.getElementById('syncProgressBar');
@@ -494,8 +485,7 @@
 
       const script = document.createElement('script');
       script.id = 'gas-jsonp-script';
-      const sep = cleanUrl.includes('?') ? '&' : '?';
-      script.src = `${cleanUrl}${sep}callback=handleGasResponse&refresh=${forceFresh ? '1' : '0'}&t=${Date.now()}`;
+      script.src = `${SCRIPT_URL}?callback=handleGasResponse&refresh=${forceFresh ? '1' : '0'}&t=${Date.now()}`;
 
       script.onerror = () => {
         clearInterval(progressSimulator);
@@ -508,6 +498,59 @@
       document.body.appendChild(script);
     }
 
+    function applyJsonPayload(json, fromLocalCache = false) {
+      availableMonths = json.months || [];
+      trackingMap = json.tracking || {};
+      const dict = json.dict || [];
+      const fromDict = (idx) => (idx >= 0 && dict[idx] !== undefined) ? dict[idx] : '';
+
+      rawData = json.records.map(r => {
+        const trackKey = `${r[5]}_${r[6]}`;
+        const tr = trackingMap[trackKey] || { downloaded: false, pawatiUploaded: false, pawatiUrl: '' };
+        return {
+          district: fromDict(r[0]),
+          districtCode: fromDict(r[1]),
+          block: fromDict(r[2]),
+          blockCode: fromDict(r[3]),
+          gp: r[4],
+          gpCode: r[5],
+          cscId: r[6],
+          vleName: r[7],
+          mouStatus: fromDict(r[8]),
+          serviceType: fromDict(r[9]),
+          gender: fromDict(r[10]),
+          phase: fromDict(r[11]),
+          monthly: r[12].map((m, i) => ({
+            month: availableMonths[i],
+            tx: m[0],
+            amt: m[1],
+            status: m[2] === 1 ? 'ACTIVE' : 'INACTIVE'
+          })),
+          cumTx: r[13],
+          cumAmt: r[14],
+          inactive3M: r[15] === 1,
+          noticeDownloaded: tr.downloaded,
+          downloadTime: tr.downloadTime || '',
+          pawatiUploaded: tr.pawatiUploaded,
+          pawatiUrl: tr.pawatiUrl || '',
+          uploadTime: tr.uploadTime || ''
+        };
+      });
+
+      if (isFirstLoad) {
+        populateDropdowns();
+        isFirstLoad = false;
+      } else {
+        refreshDropdownOptionsPreservingSelection();
+      }
+
+      applyFilters();
+
+      if (!fromLocalCache) {
+        try { localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(json)); } catch (e) {}
+      }
+    }
+
     window.handleGasResponse = function(json) {
       clearInterval(progressSimulator);
       const syncIcon = document.getElementById('syncIcon');
@@ -516,51 +559,8 @@
       try {
         if (!json || json.status !== 'success') throw new Error(json?.message || "Invalid response");
 
-        updateSyncProgress(92, "Updating Dashboard & Tracking Logs...");
-        availableMonths = json.months || [];
-        trackingMap = json.tracking || {};
-
-        rawData = json.records.map(r => {
-          const trackKey = `${r[5]}_${r[6]}`;
-          const tr = trackingMap[trackKey] || { downloaded: false, pawatiUploaded: false, pawatiUrl: '' };
-          return {
-            district: r[0],
-            districtCode: r[1],
-            block: r[2],
-            blockCode: r[3],
-            gp: r[4],
-            gpCode: r[5],
-            cscId: r[6],
-            vleName: r[7],
-            mouStatus: r[8],
-            serviceType: r[9],
-            gender: r[10],
-            phase: r[11],
-            monthly: r[12].map((m, i) => ({
-              month: availableMonths[i],
-              tx: m[0],
-              amt: m[1],
-              status: m[2] === 1 ? 'ACTIVE' : 'INACTIVE'
-            })),
-            cumTx: r[13],
-            cumAmt: r[14],
-            inactive3M: r[15] === 1,
-            noticeDownloaded: tr.downloaded,
-            downloadTime: tr.downloadTime || '',
-            pawatiUploaded: tr.pawatiUploaded,
-            pawatiUrl: tr.pawatiUrl || '',
-            uploadTime: tr.uploadTime || ''
-          };
-        });
-
-        if (isFirstLoad) {
-          populateDropdowns();
-          isFirstLoad = false;
-        } else {
-          refreshDropdownOptionsPreservingSelection();
-        }
-
-        applyFilters();
+        updateSyncProgress(95, "Rendering instant dashboard...");
+        applyJsonPayload(json, false);
 
         const nowTime = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         document.getElementById('lastSyncTime').textContent = `Last: ${nowTime}`;
@@ -707,7 +707,6 @@
 
     function updateKPIs(selectedMonth) {
       const total = filteredData.length;
-      // Exact match for MOU COMPLETED (plus YES/DONE/SIGNED safety)
       const mouDone = filteredData.filter(r =>
         r.mouStatus === 'MOU COMPLETED' || r.mouStatus === 'COMPLETED' || r.mouStatus === 'YES' || r.mouStatus === 'SIGNED'
       ).length;
@@ -736,7 +735,6 @@
       document.getElementById('kpiAmt').textContent = '₹' + Math.round(totalAmt).toLocaleString('en-IN');
       document.getElementById('kpiAmtCr').textContent = `₹${(totalAmt / 10000000).toFixed(2)} Cr`;
 
-      // Update Sarpanch Tracking Summary Cards
       document.getElementById('trackTotalInactive').textContent = inactive3M.toLocaleString('en-IN');
       document.getElementById('trackNoticeDownloaded').textContent = downloadedCnt.toLocaleString('en-IN');
       document.getElementById('trackPawatiUploaded').textContent = pawatiCnt.toLocaleString('en-IN');
@@ -987,7 +985,6 @@
 
     function downloadAndLogNotice() {
       if (activeRecord) {
-        // Log download silently to Google Sheet (NOTICE_TRACKING tab)
         fetch(SCRIPT_URL, {
           method: 'POST',
           mode: 'no-cors',
@@ -1017,7 +1014,6 @@
       document.getElementById('noticeModal').classList.remove('flex');
     }
 
-    // Pawati Upload Functions
     function openPawatiModal(r) {
       activeRecord = r;
       document.getElementById('upGpName').textContent = r.gp;
@@ -1144,8 +1140,20 @@
       XLSX.writeFile(wb, `ADSK_Monitoring_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
     }
 
-    syncDashboardData(false);
-    startAutoSyncTimer();
+    // Instant Load from Browser Cache first, then silent live sync
+    (function bootPortal() {
+      try {
+        const cachedStr = localStorage.getItem(LOCAL_CACHE_KEY);
+        if (cachedStr) {
+          const cachedJson = JSON.parse(cachedStr);
+          applyJsonPayload(cachedJson, true);
+          document.getElementById('liveBadgeText').textContent = `Instant Cache: ${rawData.length.toLocaleString('en-IN')} GPs`;
+          updateSyncProgress(40, "Loaded instant cache, syncing latest updates...");
+        }
+      } catch (e) {}
+      syncDashboardData(false);
+      startAutoSyncTimer();
+    })();
   </script>
 </body>
 </html>
