@@ -605,8 +605,23 @@
       document.body.appendChild(script);
     }
 
+    function isValidMonthLabel(m) {
+      const upper = String(m || '').trim().toUpperCase();
+      return upper && !upper.includes('TOTAL') && !upper.includes('CUMULATIVE') && !upper.includes('AMOUNT');
+    }
+
     function applyJsonPayload(json, fromLocalCache = false) {
-      availableMonths = json.months || [];
+      const rawMonths = json.months || [];
+      const validMonthIndices = [];
+      availableMonths = [];
+
+      rawMonths.forEach((m, idx) => {
+        if (isValidMonthLabel(m)) {
+          availableMonths.push(m);
+          validMonthIndices.push(idx);
+        }
+      });
+
       trackingMap = json.tracking || {};
       const dict = Array.isArray(json.dict) ? json.dict : null;
       const fromDict = (val) => (dict && typeof val === 'number' && val >= 0 && dict[val] !== undefined) ? dict[val] : String(val || '').trim();
@@ -621,10 +636,11 @@
         const tr = trackingMap[`${gpCode}_${cscId}`] || { downloaded: false, pawatiUploaded: false, pawatiUrl: '' };
 
         const mRaw = r[12] || [];
-        const monthlyArr = new Array(mRaw.length);
+        const monthlyArr = new Array(validMonthIndices.length);
         let anyActive = false;
-        for (let i = 0; i < mRaw.length; i++) {
-          const m = mRaw[i];
+        for (let i = 0; i < validMonthIndices.length; i++) {
+          const origIdx = validMonthIndices[i];
+          const m = mRaw[origIdx] || [0, 0, 0];
           const isAct = m[2] === 1;
           if (isAct) anyActive = true;
           monthlyArr[i] = {
